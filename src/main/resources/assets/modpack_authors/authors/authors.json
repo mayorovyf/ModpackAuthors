@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "titleKey": "screen.modpack_authors.title",
+  "authors": [
+    {
+      "id": "shadowfox",
+      "displayName": "ShadowFox",
+      "role": "Lead Developer",
+      "shortDescription": "Core systems, gameplay and balance.",
+      "longDescription": "Responsible for core gameplay systems, progression logic, integration balance and technical direction.",
+      "avatar": "textures/gui/authors/default.png",
+      "order": 10,
+      "tags": ["code", "systems", "balance"],
+      "badges": ["Core Team"],
+      "contributions": [
+        "Core gameplay systems",
+        "Mod integration balance",
+        "Technical architecture"
+      ],
+      "versions": [
+        "0.1.0",
+        "0.2.0"
+      ],
+      "links": [
+        {
+          "label": "GitHub",
+          "url": "https://github.com/shadowfox"
+        },
+        {
+          "label": "Modrinth",
+          "url": "https://modrinth.com/user/shadowfox"
+        }
+      ]
+    },
+    {
+      "id": "emberline",
+      "displayName": "Emberline",
+      "role": "Art and UI",
+      "shortDescription": "Interface style, icons and presentation.",
+      "longDescription": "Created the visual direction for the team screen, prepared interface assets and kept the UI readable across different GUI scales.",
+      "avatar": "textures/gui/authors/default.png",
+      "order": 20,
+      "tags": ["art", "ui", "icons"],
+      "badges": ["Visual Team"],
+      "contributions": [
+        "GUI style",
+        "Author avatars",
+        "Icon pass"
+      ],
+      "versions": [
+        "0.2.0"
+      ],
+      "links": []
+    }
+  ]
+}

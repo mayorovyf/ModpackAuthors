@@ -1,0 +1,16 @@
+{
+  "screen.modpack_authors.title": "Authors",
+  "screen.modpack_authors.menu_button": "Authors",
+  "screen.modpack_authors.search": "Search authors...",
+  "screen.modpack_authors.back": "Back",
+  "screen.modpack_authors.details": "Details",
+  "screen.modpack_authors.links": "Links",
+  "screen.modpack_authors.no_results": "No authors found",
+  "screen.modpack_authors.no_authors": "Author list is empty",
+  "screen.modpack_authors.open_link": "Open link",
+  "screen.modpack_authors.about_author": "ABOUT AUTHOR",
+  "screen.modpack_authors.project_roles": "PROJECT ROLES",
+  "screen.modpack_authors.contacts": "CONTACTS",
+  "screen.modpack_authors.contributions": "CONTRIBUTION TO PROJECT",
+  "screen.modpack_authors.versions": "VERSIONS"
+}

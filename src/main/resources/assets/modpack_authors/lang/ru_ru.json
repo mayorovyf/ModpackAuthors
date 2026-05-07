@@ -1,0 +1,16 @@
+{
+  "screen.modpack_authors.title": "Авторы",
+  "screen.modpack_authors.menu_button": "Авторы",
+  "screen.modpack_authors.search": "Поиск авторов...",
+  "screen.modpack_authors.back": "Назад",
+  "screen.modpack_authors.details": "Подробнее",
+  "screen.modpack_authors.links": "Ссылки",
+  "screen.modpack_authors.no_results": "Авторы не найдены",
+  "screen.modpack_authors.no_authors": "Список авторов пуст",
+  "screen.modpack_authors.open_link": "Открыть ссылку",
+  "screen.modpack_authors.about_author": "ОБ АВТОРЕ",
+  "screen.modpack_authors.project_roles": "РОЛИ В ПРОЕКТЕ",
+  "screen.modpack_authors.contacts": "КОНТАКТЫ",
+  "screen.modpack_authors.contributions": "ВКЛАД В ПРОЕКТ",
+  "screen.modpack_authors.versions": "ВЕРСИИ"
+}

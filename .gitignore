@@ -1,0 +1,40 @@
+# Gradle
+.gradle/
+build/
+out/
+
+# Minecraft run directories
+run/
+run-data/
+logs/
+crash-reports/
+debug.log
+*.log
+*.hprof
+
+# IDE files
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.settings/
+.classpath
+.project
+.metadata/
+bin/
+eclipse/
+*.launch
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Local environment files
+.env
+.env.*
+local.properties
+
+# Forge MDK generated notes
+forge*changelog.txt
