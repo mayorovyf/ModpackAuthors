@@ -22,6 +22,9 @@ public final class AuthorDetailsScreen extends Screen {
     private static final int CONTENT_PADDING = 18;
     private static final int SECTION_GAP = 16;
     private static final int TEXT_LINE_HEIGHT = 11;
+    private static final int CONTACT_ROW_HEIGHT = 22;
+    private static final int CONTACT_ICON_SLOT = 18;
+    private static final int CONTACT_ICON_SIZE = 14;
 
     private final Screen parentScreen;
     private final AuthorProfile author;
@@ -167,9 +170,8 @@ public final class AuthorDetailsScreen extends Screen {
         int cursorY = renderSectionTitle(graphics, Component.translatable("screen.modpack_authors.contacts"), x, y, render);
         for (AuthorLink link : this.author.links()) {
             AuthorLinkIcon icon = AuthorLinkIcons.iconFor(link);
-            int rowHeight = 22;
             int rowTop = cursorY - 2;
-            int rowBottom = cursorY + rowHeight - 2;
+            int rowBottom = cursorY + CONTACT_ROW_HEIGHT - 2;
             boolean visible = rowBottom >= PANEL_TOP && rowTop <= this.height - 26;
             boolean hovered = visible && mouseX >= x && mouseX <= x + width && mouseY >= rowTop && mouseY <= rowBottom;
 
@@ -177,14 +179,16 @@ public final class AuthorDetailsScreen extends Screen {
                 if (hovered) {
                     graphics.fill(x - 4, rowTop, x + width, rowBottom, 0x553F4A52);
                 }
-                graphics.blit(icon.texture(), x, cursorY + 2, 0, 0, 16, 16, 16, 16);
-                graphics.drawString(this.font, icon.label(), x + 24, cursorY + 6, hovered ? 0xFFFFFF : 0xDADADA, false);
+                int iconX = x + (CONTACT_ICON_SLOT - CONTACT_ICON_SIZE) / 2;
+                int iconY = rowTop + (CONTACT_ROW_HEIGHT - CONTACT_ICON_SIZE) / 2;
+                graphics.blit(icon.texture(), iconX, iconY, 0, 0, CONTACT_ICON_SIZE, CONTACT_ICON_SIZE, CONTACT_ICON_SIZE, CONTACT_ICON_SIZE);
+                graphics.drawString(this.font, icon.label(), x + CONTACT_ICON_SLOT + 8, cursorY + 6, hovered ? 0xFFFFFF : 0xDADADA, false);
                 if (visible) {
                     this.linkHitboxes.add(new LinkHitbox(x - 4, rowTop, x + width, rowBottom, link));
                 }
             }
 
-            cursorY += rowHeight;
+            cursorY += CONTACT_ROW_HEIGHT;
         }
         return cursorY;
     }

@@ -44,17 +44,40 @@ A minimal profile can look like this:
 {
   "id": "mayo",
   "displayName": "Mayo",
-  "role": "Modpack Author",
-  "shortDescription": "Quests, balance and progression.",
-  "longDescription": "Worked on quest flow, progression pacing, mod integration and final pack polish.",
+  "role": {
+    "en_us": "Modpack Author",
+    "ru_ru": "Автор модпака"
+  },
+  "shortDescription": {
+    "en_us": "Quests, balance and progression.",
+    "ru_ru": "Квесты, баланс и прогрессия."
+  },
+  "longDescription": {
+    "en_us": "Worked on quest flow, progression pacing, mod integration and final pack polish.",
+    "ru_ru": "Работал над квестами, темпом прогрессии, интеграцией модов и финальной полировкой сборки."
+  },
   "avatar": "textures/gui/authors/mayo.png",
   "order": 10,
   "tags": ["quests", "balance", "progression"],
-  "badges": ["Core Team"],
+  "badges": [
+    {
+      "en_us": "Core Team",
+      "ru_ru": "Основная команда"
+    }
+  ],
   "contributions": [
-    "Quest book",
-    "Progression balance",
-    "Mod integration"
+    {
+      "en_us": "Quest book",
+      "ru_ru": "Книга квестов"
+    },
+    {
+      "en_us": "Progression balance",
+      "ru_ru": "Баланс прогрессии"
+    },
+    {
+      "en_us": "Mod integration",
+      "ru_ru": "Интеграция модов"
+    }
   ],
   "versions": [
     "0.1.0"
@@ -74,6 +97,17 @@ A minimal profile can look like this:
 
 The `id` field must be unique. If two authors use the same `id`, the mod keeps the first one and skips the rest with a warning in the log.
 
+Text fields can be plain strings or localized objects. When a localized object is used, the mod chooses the value that matches the language selected in Minecraft settings.
+
+```json
+"shortDescription": {
+  "en_us": "Quests, balance and progression.",
+  "ru_ru": "Квесты, баланс и прогрессия."
+}
+```
+
+If the current language is missing, the mod falls back to `default`, then `en_us`, then the first available value.
+
 The `order` field controls sorting. The lower the number, the higher the author appears in the list. If the order is the same, authors are sorted by `displayName`.
 
 The `tags`, `badges`, `contributions`, `versions`, and `links` fields can be empty arrays. The screen simply does not show empty sections.
@@ -90,9 +124,18 @@ The root file must contain the schema version, title key, and author array:
     {
       "id": "mayo",
       "displayName": "Mayo",
-      "role": "Modpack Author",
-      "shortDescription": "Quests, balance and progression.",
-      "longDescription": "Worked on quest flow, progression pacing, mod integration and final pack polish.",
+      "role": {
+        "en_us": "Modpack Author",
+        "ru_ru": "Автор модпака"
+      },
+      "shortDescription": {
+        "en_us": "Quests, balance and progression.",
+        "ru_ru": "Квесты, баланс и прогрессия."
+      },
+      "longDescription": {
+        "en_us": "Worked on quest flow, progression pacing, mod integration and final pack polish.",
+        "ru_ru": "Работал над квестами, темпом прогрессии, интеграцией модов и финальной полировкой сборки."
+      },
       "avatar": "textures/gui/authors/mayo.png",
       "order": 10,
       "tags": ["quests", "balance"],

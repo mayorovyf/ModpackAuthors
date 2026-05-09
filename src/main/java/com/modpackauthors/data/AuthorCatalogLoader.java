@@ -18,7 +18,9 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -101,13 +103,13 @@ public final class AuthorCatalogLoader {
 
         JsonObject object = element.getAsJsonObject();
         String id = getString(object, "id", "").trim();
-        String displayName = getString(object, "displayName", "").trim();
+        LocalizedText displayName = getLocalizedText(object, "displayName", LocalizedText.of(""));
 
         if (id.isEmpty()) {
             ModpackAuthors.LOGGER.warn("Skipping author entry at index {}: id is required", index);
             return Optional.empty();
         }
-        if (displayName.isEmpty()) {
+        if (displayName.fallback().isBlank()) {
             ModpackAuthors.LOGGER.warn("Skipping author {}: displayName is required", id);
             return Optional.empty();
         }
@@ -116,20 +118,20 @@ public final class AuthorCatalogLoader {
             return Optional.empty();
         }
 
-        String shortDescription = getString(object, "shortDescription", "");
-        String longDescription = getString(object, "longDescription", shortDescription);
+        LocalizedText shortDescription = getLocalizedText(object, "shortDescription", LocalizedText.of(""));
+        LocalizedText longDescription = getLocalizedText(object, "longDescription", shortDescription);
 
         return Optional.of(new AuthorProfile(
                 id,
                 displayName,
-                getString(object, "role", ""),
+                getLocalizedText(object, "role", LocalizedText.of("")),
                 shortDescription,
                 longDescription,
                 resolveAvatar(resourceManager, getString(object, "avatar", "")),
                 getInt(object, "order", 0),
-                getStringList(object, "tags"),
-                getStringList(object, "badges"),
-                getStringList(object, "contributions"),
+                getLocalizedTextList(object, "tags"),
+                getLocalizedTextList(object, "badges"),
+                getLocalizedTextList(object, "contributions"),
                 getStringList(object, "versions"),
                 getLinks(object, id)
         ));
@@ -245,6 +247,62 @@ public final class AuthorCatalogLoader {
                 if (!value.isEmpty()) {
                     values.add(value);
                 }
+            }
+        }
+        return values;
+    }
+
+    private static LocalizedText getLocalizedText(JsonObject object, String key, LocalizedText fallback) {
+        JsonElement element = object.get(key);
+        if (element == null) {
+            return fallback;
+        }
+        return parseLocalizedText(element, fallback);
+    }
+
+    private static LocalizedText parseLocalizedText(JsonElement element, LocalizedText fallback) {
+        if (element == null) {
+            return fallback;
+        }
+
+        if (element.isJsonPrimitive()) {
+            try {
+                return LocalizedText.of(element.getAsString());
+            } catch (RuntimeException exception) {
+                return fallback;
+            }
+        }
+
+        if (!element.isJsonObject()) {
+            return fallback;
+        }
+
+        Map<String, String> translations = new LinkedHashMap<>();
+        JsonObject object = element.getAsJsonObject();
+        for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
+            JsonElement value = entry.getValue();
+            if (value != null && value.isJsonPrimitive()) {
+                String text = value.getAsString().trim();
+                if (!text.isEmpty()) {
+                    translations.put(entry.getKey(), text);
+                }
+            }
+        }
+
+        return translations.isEmpty() ? fallback : LocalizedText.of(translations);
+    }
+
+    private static List<LocalizedText> getLocalizedTextList(JsonObject object, String key) {
+        JsonArray array = getArray(object, key);
+        if (array == null) {
+            return List.of();
+        }
+
+        List<LocalizedText> values = new ArrayList<>();
+        for (JsonElement element : array) {
+            LocalizedText value = parseLocalizedText(element, LocalizedText.of(""));
+            if (!value.fallback().isBlank()) {
+                values.add(value);
             }
         }
         return values;

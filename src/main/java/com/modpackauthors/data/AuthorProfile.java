@@ -6,28 +6,63 @@ import java.util.List;
 
 public record AuthorProfile(
         String id,
-        String displayName,
-        String role,
-        String shortDescription,
-        String longDescription,
+        LocalizedText displayNameText,
+        LocalizedText roleText,
+        LocalizedText shortDescriptionText,
+        LocalizedText longDescriptionText,
         ResourceLocation avatarTexture,
         int order,
-        List<String> tags,
-        List<String> badges,
-        List<String> contributions,
+        List<LocalizedText> tagTexts,
+        List<LocalizedText> badgeTexts,
+        List<LocalizedText> contributionTexts,
         List<String> versions,
         List<AuthorLink> links
 ) {
     public AuthorProfile {
         id = id == null ? "" : id;
-        displayName = displayName == null ? "" : displayName;
-        role = role == null ? "" : role;
-        shortDescription = shortDescription == null ? "" : shortDescription;
-        longDescription = longDescription == null ? "" : longDescription;
-        tags = List.copyOf(tags == null ? List.of() : tags);
-        badges = List.copyOf(badges == null ? List.of() : badges);
-        contributions = List.copyOf(contributions == null ? List.of() : contributions);
+        displayNameText = displayNameText == null ? LocalizedText.of("") : displayNameText;
+        roleText = roleText == null ? LocalizedText.of("") : roleText;
+        shortDescriptionText = shortDescriptionText == null ? LocalizedText.of("") : shortDescriptionText;
+        longDescriptionText = longDescriptionText == null ? LocalizedText.of("") : longDescriptionText;
+        tagTexts = List.copyOf(tagTexts == null ? List.of() : tagTexts);
+        badgeTexts = List.copyOf(badgeTexts == null ? List.of() : badgeTexts);
+        contributionTexts = List.copyOf(contributionTexts == null ? List.of() : contributionTexts);
         versions = List.copyOf(versions == null ? List.of() : versions);
         links = List.copyOf(links == null ? List.of() : links);
+    }
+
+    public String displayName() {
+        return this.displayNameText.resolve();
+    }
+
+    public String role() {
+        return this.roleText.resolve();
+    }
+
+    public String shortDescription() {
+        return this.shortDescriptionText.resolve();
+    }
+
+    public String longDescription() {
+        return this.longDescriptionText.resolve();
+    }
+
+    public List<String> tags() {
+        return resolveList(this.tagTexts);
+    }
+
+    public List<String> badges() {
+        return resolveList(this.badgeTexts);
+    }
+
+    public List<String> contributions() {
+        return resolveList(this.contributionTexts);
+    }
+
+    private static List<String> resolveList(List<LocalizedText> values) {
+        return values.stream()
+                .map(LocalizedText::resolve)
+                .filter(value -> !value.isBlank())
+                .toList();
     }
 }
