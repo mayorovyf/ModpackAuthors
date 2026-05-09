@@ -95,7 +95,7 @@ public final class AuthorDetailsScreen extends Screen {
                     contentX, cursorY, contentWidth, render);
         }
 
-        if (!this.author.links().isEmpty()) {
+        if (!this.author.links().isEmpty() || !this.author.contacts().isEmpty()) {
             cursorY = separator(graphics, contentX, cursorY + SECTION_GAP, contentWidth, render);
             cursorY = renderContacts(graphics, contentX, cursorY, contentWidth, render, mouseX, mouseY);
         }
@@ -189,6 +189,10 @@ public final class AuthorDetailsScreen extends Screen {
             }
 
             cursorY += CONTACT_ROW_HEIGHT;
+        }
+        for (String contact : this.author.contacts()) {
+            cursorY = renderWrappedText(graphics, "- " + contact, x, cursorY + 2, width, 0xC9C9C9, render);
+            cursorY += 2;
         }
         return cursorY;
     }

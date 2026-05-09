@@ -15,6 +15,7 @@ public record AuthorProfile(
         List<LocalizedText> tagTexts,
         List<LocalizedText> badgeTexts,
         List<LocalizedText> contributionTexts,
+        List<LocalizedText> contactTexts,
         List<String> versions,
         List<AuthorLink> links
 ) {
@@ -27,6 +28,7 @@ public record AuthorProfile(
         tagTexts = List.copyOf(tagTexts == null ? List.of() : tagTexts);
         badgeTexts = List.copyOf(badgeTexts == null ? List.of() : badgeTexts);
         contributionTexts = List.copyOf(contributionTexts == null ? List.of() : contributionTexts);
+        contactTexts = List.copyOf(contactTexts == null ? List.of() : contactTexts);
         versions = List.copyOf(versions == null ? List.of() : versions);
         links = List.copyOf(links == null ? List.of() : links);
     }
@@ -57,6 +59,10 @@ public record AuthorProfile(
 
     public List<String> contributions() {
         return resolveList(this.contributionTexts);
+    }
+
+    public List<String> contacts() {
+        return resolveList(this.contactTexts);
     }
 
     private static List<String> resolveList(List<LocalizedText> values) {

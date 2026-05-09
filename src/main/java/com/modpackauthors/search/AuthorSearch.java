@@ -28,6 +28,7 @@ public final class AuthorSearch {
                 || contains(author.longDescription(), normalizedQuery)
                 || author.tags().stream().anyMatch(value -> contains(value, normalizedQuery))
                 || author.contributions().stream().anyMatch(value -> contains(value, normalizedQuery))
+                || author.contacts().stream().anyMatch(value -> contains(value, normalizedQuery))
                 || author.versions().stream().anyMatch(value -> contains(value, normalizedQuery));
     }
 

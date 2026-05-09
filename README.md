@@ -2,23 +2,26 @@
 
 This is a Forge mod that adds a separate modpack authors screen to the Minecraft main menu. Players can use it to open the team list, find a specific member, and view their role, description, contacts, project contribution, and the versions they worked on.
 
-The mod does not add server logic and does not change gameplay. It works only on the client and reads author data from resources. This is useful for modpacks because the team list can be updated through `authors.json` and avatars, without changing Java code.
+The mod does not add server logic and does not change gameplay. It works only on the client and reads author data from the pack config directory first, then falls back to bundled resources. This is useful for modpacks because the team list can be updated through JSON files without rebuilding the mod.
 
 The `Authors` button is added directly to the main menu. The authors screen supports search by name, role, description, tags, contribution, and versions. Each author row shows an avatar, name, role, short description, quick links, and a profile details button.
 
 ## How To Use
 
-The main file with the author list is stored in resources:
+The main editable file with the author list is stored in the Minecraft config directory:
 
 ```text
-assets/modpack_authors/authors/authors.json
+config/modpack_authors/authors.json
 ```
 
-The example in the source tree is here:
+The same author format can also be split into one file per author:
 
 ```text
-src/main/resources/assets/modpack_authors/authors/authors.json
+config/modpack_authors/authors/lexeef.json
+config/modpack_authors/authors/ender.json
 ```
+
+If at least one `config/modpack_authors/authors/*.json` file exists, the mod loads authors from that folder. If the folder is empty or missing, it loads `config/modpack_authors/authors.json`. If no config file exists, the mod creates a default `authors.json` from its bundled fallback and loads that.
 
 Avatars should be placed in this folder:
 
@@ -80,7 +83,7 @@ A minimal profile can look like this:
     }
   ],
   "versions": [
-    "0.1.0"
+    "0.2.0"
   ],
   "links": [
     {
@@ -141,14 +144,43 @@ The root file must contain the schema version, title key, and author array:
       "tags": ["quests", "balance"],
       "badges": ["Core Team"],
       "contributions": ["Quest book", "Progression balance"],
-      "versions": ["0.1.0"],
+      "versions": ["0.2.0"],
       "links": []
     }
   ]
 }
 ```
 
-If `authors.json` is missing, the screen still opens and shows an empty state. If the root JSON is broken, the mod loads an empty catalog and writes an error to the log. If only one author entry is broken, the mod skips that author and continues loading the rest.
+If the config files are missing, the mod creates a default `config/modpack_authors/authors.json` and falls back to bundled data. If the root JSON is broken, the mod loads an empty catalog and writes an error to the log. If only one author entry is broken, the mod skips that author and continues loading the rest.
+
+## Per-Author Files
+
+When separate author files are used, each file contains a single author object instead of the root `authors` array:
+
+```json
+{
+  "id": "mayo",
+  "displayName": "Mayo",
+  "role": "Modpack Author",
+  "shortDescription": "Quests, balance and progression.",
+  "longDescription": "Worked on quest flow, progression pacing, mod integration and final pack polish.",
+  "avatar": "textures/gui/authors/mayo.png",
+  "order": 10,
+  "tags": ["quests", "balance", "progression"],
+  "badges": ["Core Team"],
+  "contacts": ["Discord: mayo"],
+  "contributions": ["Quest book", "Progression balance"],
+  "versions": ["0.2.0"],
+  "links": [
+    {
+      "label": "GitHub",
+      "url": "https://github.com/username"
+    }
+  ]
+}
+```
+
+The optional root file `config/modpack_authors/authors.json` can still be kept beside the folder to provide `titleKey`; when per-author files exist, its `authors` array is ignored.
 
 ## Links And Icons
 
@@ -166,7 +198,7 @@ You can replace the icons with your own PNG files using the same file names. No 
 
 ## Main Menu
 
-By default, the `Authors` button is inserted below the multiplayer button in the Minecraft main menu. It uses the width of a standard menu button and moves the lower buttons down so it does not overlap `Mods`, `Realms`, `Options`, or `Quit`.
+By default, the `Authors` button is inserted below the multiplayer button in the Minecraft main menu. With the default `BELOW_MULTIPLAYER` anchor, the mod also keeps the main title buttons in a responsive centered stack, so button width and row positions are recalculated from the current screen size instead of relying on fixed FancyMenu coordinates.
 
 The button position can be changed in the client config:
 
@@ -197,4 +229,4 @@ assets/modpack_authors/lang/en_us.json
 assets/modpack_authors/lang/ru_ru.json
 ```
 
-Author names, roles, and descriptions are currently stored directly in `authors.json`. This is simpler for modpacks where the team list is usually written in one language. If full localization for profiles is needed, different versions of `authors.json` can be provided through a resource pack.
+Author names, roles, and descriptions are stored in `config/modpack_authors/authors.json` or separate files under `config/modpack_authors/authors/`. Text fields can be plain strings or localized objects, so the same config can carry both English and Russian profile text.
