@@ -24,7 +24,7 @@ tasks.register('prepareDevRunConfig') {
       "badges": ["Local Test"],
       "contacts": ["Discord: dev-author"],
       "contributions": ["Author screen testing", "Local configuration checks"],
-      "versions": ["0.2.0"],
+      "versions": ["0.2.1"],
       "links": [
         {
           "label": "Modrinth",

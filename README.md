@@ -83,7 +83,7 @@ A minimal profile can look like this:
     }
   ],
   "versions": [
-    "0.2.0"
+    "0.2.1"
   ],
   "links": [
     {
@@ -144,7 +144,7 @@ The root file must contain the schema version, title key, and author array:
       "tags": ["quests", "balance"],
       "badges": ["Core Team"],
       "contributions": ["Quest book", "Progression balance"],
-      "versions": ["0.2.0"],
+      "versions": ["0.2.1"],
       "links": []
     }
   ]
@@ -170,7 +170,7 @@ When separate author files are used, each file contains a single author object i
   "badges": ["Core Team"],
   "contacts": ["Discord: mayo"],
   "contributions": ["Quest book", "Progression balance"],
-  "versions": ["0.2.0"],
+  "versions": ["0.2.1"],
   "links": [
     {
       "label": "GitHub",
@@ -219,6 +219,21 @@ buttonHeight = 20
 ```
 
 If the button is not needed, set `showMainMenuButton = false`.
+
+For FancyMenu layouts that already manage the vanilla title-screen buttons, use `FANCYMENU_CENTER`.
+This mode positions the Authors button from the screen center and does not move existing widgets.
+
+Essentia FancyMenu example:
+
+```toml
+[mainMenuButton]
+showMainMenuButton = true
+buttonAnchor = "FANCYMENU_CENTER"
+offsetX = 0
+offsetY = 6
+buttonWidth = 200
+buttonHeight = 20
+```
 
 ## Building
 

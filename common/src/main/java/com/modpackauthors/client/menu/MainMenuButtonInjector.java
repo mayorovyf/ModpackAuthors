@@ -19,6 +19,7 @@ public final class MainMenuButtonInjector {
     private static final int VANILLA_BUTTON_WIDTH = 200;
     private static final int VANILLA_BUTTON_SPACING = 24;
     private static final int TITLE_FIRST_BUTTON_Y_OFFSET = 48;
+    private static final int FANCYMENU_CENTER_Y_OFFSET = 0;
 
     private MainMenuButtonInjector() {
     }
@@ -50,10 +51,24 @@ public final class MainMenuButtonInjector {
             return new ButtonPlacement(x, y, placement.width(), placement.height());
         }
 
+        if (AuthorsClientConfig.buttonAnchor() == AuthorsClientConfig.ButtonAnchor.FANCYMENU_CENTER) {
+            return fancyMenuCenterPlacement(screenWidth, screenHeight);
+        }
+
         int buttonWidth = AuthorsClientConfig.buttonWidth();
         int buttonHeight = AuthorsClientConfig.buttonHeight();
         int x = computeX(screenWidth, buttonWidth);
         int y = computeY(screenHeight, buttonHeight);
+        return new ButtonPlacement(x, y, buttonWidth, buttonHeight);
+    }
+
+    private static ButtonPlacement fancyMenuCenterPlacement(int screenWidth, int screenHeight) {
+        int buttonWidth = AuthorsClientConfig.buttonWidth();
+        int buttonHeight = AuthorsClientConfig.buttonHeight();
+        int x = screenWidth / 2 - buttonWidth / 2 + AuthorsClientConfig.offsetX();
+        int y = screenHeight / 2 + FANCYMENU_CENTER_Y_OFFSET + AuthorsClientConfig.offsetY();
+        x = Mth.clamp(x, 0, Math.max(0, screenWidth - buttonWidth));
+        y = Mth.clamp(y, 0, Math.max(0, screenHeight - buttonHeight));
         return new ButtonPlacement(x, y, buttonWidth, buttonHeight);
     }
 
@@ -85,6 +100,7 @@ public final class MainMenuButtonInjector {
     private static int computeX(int screenWidth, int buttonWidth) {
         int x = switch (AuthorsClientConfig.buttonAnchor()) {
             case BELOW_MULTIPLAYER -> screenWidth / 2 - VANILLA_BUTTON_WIDTH / 2;
+            case FANCYMENU_CENTER -> screenWidth / 2 - buttonWidth / 2;
             case CENTER -> (screenWidth - buttonWidth) / 2;
             case BOTTOM_LEFT -> 4;
             case BOTTOM_RIGHT -> screenWidth - buttonWidth;
@@ -98,6 +114,7 @@ public final class MainMenuButtonInjector {
     private static int computeY(int screenHeight, int buttonHeight) {
         int y = switch (AuthorsClientConfig.buttonAnchor()) {
             case BELOW_MULTIPLAYER -> screenHeight / 4 + TITLE_FIRST_BUTTON_Y_OFFSET + VANILLA_BUTTON_SPACING * 2;
+            case FANCYMENU_CENTER -> screenHeight / 2 + FANCYMENU_CENTER_Y_OFFSET;
             case CENTER -> screenHeight / 4 + 144;
             case BOTTOM_LEFT, BOTTOM_RIGHT -> screenHeight - buttonHeight;
             case NEAR_OPTIONS, NEAR_MODS -> screenHeight / 4 + 120;

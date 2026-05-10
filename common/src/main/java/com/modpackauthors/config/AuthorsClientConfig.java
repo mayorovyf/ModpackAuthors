@@ -171,6 +171,7 @@ public final class AuthorsClientConfig {
 
     public enum ButtonAnchor {
         BELOW_MULTIPLAYER,
+        FANCYMENU_CENTER,
         CENTER,
         BOTTOM_LEFT,
         BOTTOM_RIGHT,
