@@ -7,6 +7,7 @@ import com.modpackauthors.data.AuthorProfile;
 import com.modpackauthors.util.Components;
 import com.modpackauthors.util.JavaCompat;
 import com.modpackauthors.util.UrlOpenHelper;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
@@ -76,7 +77,12 @@ public final class AuthorDetailsScreen extends Screen {
         drawBorder(poseStack, panelLeft, PANEL_TOP, panelWidth, panelHeight);
 
         this.linkHitboxes.clear();
-        layoutContent(poseStack, panelLeft, PANEL_TOP, panelWidth, true, mouseX, mouseY);
+        enableScissor(panelLeft + 2, PANEL_TOP + 2, panelLeft + panelWidth - 2, panelBottom - 2);
+        try {
+            layoutContent(poseStack, panelLeft, PANEL_TOP, panelWidth, true, mouseX, mouseY);
+        } finally {
+            RenderSystem.disableScissor();
+        }
 
         renderScrollHint(poseStack, panelLeft, PANEL_TOP, panelWidth, panelHeight);
     }
@@ -260,6 +266,16 @@ public final class AuthorDetailsScreen extends Screen {
     private static void blitTexture(PoseStack poseStack, ResourceLocation texture, int x, int y, int size) {
         Minecraft.getInstance().getTextureManager().bind(texture);
         GuiComponent.blit(poseStack, x, y, 0, 0, size, size, size, size);
+    }
+
+    private static void enableScissor(int left, int top, int right, int bottom) {
+        Minecraft minecraft = Minecraft.getInstance();
+        double scale = minecraft.getWindow().getGuiScale();
+        int scissorX = (int) Math.floor(left * scale);
+        int scissorY = (int) Math.floor((minecraft.getWindow().getGuiScaledHeight() - bottom) * scale);
+        int scissorWidth = (int) Math.ceil((right - left) * scale);
+        int scissorHeight = (int) Math.ceil((bottom - top) * scale);
+        RenderSystem.enableScissor(scissorX, scissorY, scissorWidth, scissorHeight);
     }
 
     @Override
