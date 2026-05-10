@@ -31,8 +31,12 @@ public final class IconButton extends Button {
     public void renderButton(PoseStack poseStack, int mouseX, int mouseY, float partialTick) {
         int iconX = this.x + (this.width - ICON_SIZE) / 2;
         int iconY = this.y + (this.height - ICON_SIZE) / 2;
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.setShaderTexture(0, this.icon);
         GuiComponent.blit(poseStack, iconX, iconY, 0, 0, ICON_SIZE, ICON_SIZE, ICON_SIZE, ICON_SIZE);
+        RenderSystem.disableBlend();
 
         if (this.isHoveredOrFocused()) {
             Screen screen = Minecraft.getInstance().screen;

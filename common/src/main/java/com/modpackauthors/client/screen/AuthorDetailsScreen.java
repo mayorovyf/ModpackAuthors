@@ -263,8 +263,12 @@ public final class AuthorDetailsScreen extends Screen {
     }
 
     private static void blitTexture(PoseStack poseStack, ResourceLocation texture, int x, int y, int size) {
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.setShaderTexture(0, texture);
         GuiComponent.blit(poseStack, x, y, 0, 0, size, size, size, size);
+        RenderSystem.disableBlend();
     }
 
     private static void enableScissor(int left, int top, int right, int bottom) {
