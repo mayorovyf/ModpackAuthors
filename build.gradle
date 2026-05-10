@@ -20,21 +20,17 @@ def registerLoaderTask = { String taskName, String taskGroup, String taskDescrip
 
 registerLoaderTask('buildForge', 'build', 'Builds the Forge loader jar.', 'forge', 'build')
 registerLoaderTask('buildFabric', 'build', 'Builds the Fabric loader jar.', 'fabric', 'build')
-registerLoaderTask('buildNeoForge', 'build', 'Builds the NeoForge loader jar.', 'neoforge', 'build')
 
 registerLoaderTask('runFabricClient', 'minecraft', 'Runs the Fabric client.', 'fabric', 'runClient')
 registerLoaderTask('runFabricServer', 'minecraft', 'Runs the Fabric server.', 'fabric', 'runServer')
 registerLoaderTask('runForgeClient', 'minecraft', 'Runs the Forge client.', 'forge', 'runClient')
 registerLoaderTask('runForgeServer', 'minecraft', 'Runs the Forge server.', 'forge', 'runServer')
-registerLoaderTask('runNeoForgeClient', 'minecraft', 'Runs the NeoForge client.', 'neoforge', 'runClient')
-registerLoaderTask('runNeoForgeServer', 'minecraft', 'Runs the NeoForge server.', 'neoforge', 'runServer')
 
 tasks.register('buildLoaders') {
     group = 'build'
-    description = 'Builds Forge, Fabric, and NeoForge loader jars.'
+    description = 'Builds Forge and Fabric loader jars.'
     dependsOn tasks.named('buildForge')
     dependsOn tasks.named('buildFabric')
-    dependsOn tasks.named('buildNeoForge')
 }
 
 tasks.named('build') {

@@ -4,8 +4,8 @@ import com.modpackauthors.data.AuthorCatalog;
 import com.modpackauthors.data.AuthorCatalogLoader;
 import com.modpackauthors.data.AuthorProfile;
 import com.modpackauthors.search.AuthorSearch;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
@@ -47,12 +47,10 @@ public final class AuthorsScreen extends Screen {
         this.searchBox.setMaxLength(128);
         this.searchBox.setValue(this.query);
         this.searchBox.setResponder(this::onSearchChanged);
-        this.searchBox.setHint(Component.translatable("screen.modpack_authors.search"));
         this.addRenderableWidget(this.searchBox);
 
-        this.addRenderableWidget(Button.builder(Component.translatable("screen.modpack_authors.back"), button -> onClose())
-                .bounds(backX, controlY, backWidth, 20)
-                .build());
+        this.addRenderableWidget(new Button(backX, controlY, backWidth, 20,
+                Component.translatable("screen.modpack_authors.back"), button -> onClose()));
 
         int listTop = HEADER_HEIGHT;
         int listBottom = this.height - SIDE_MARGIN;
@@ -85,19 +83,19 @@ public final class AuthorsScreen extends Screen {
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        this.renderBackground(graphics);
-        graphics.drawString(this.font, Component.translatable(this.catalog.titleKey()), contentLeft(), 22, 0xFFFFFF, false);
-        super.render(graphics, mouseX, mouseY, partialTick);
-        renderEmptyState(graphics);
+    public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTick) {
+        this.renderBackground(poseStack);
+        this.font.draw(poseStack, Component.translatable(this.catalog.titleKey()), contentLeft(), 22, 0xFFFFFF);
+        super.render(poseStack, mouseX, mouseY, partialTick);
+        renderEmptyState(poseStack);
     }
 
-    private void renderEmptyState(GuiGraphics graphics) {
+    private void renderEmptyState(PoseStack poseStack) {
         if (this.catalog.authors().isEmpty()) {
-            graphics.drawCenteredString(this.font, Component.translatable("screen.modpack_authors.no_authors"),
+            drawCenteredString(poseStack, this.font, Component.translatable("screen.modpack_authors.no_authors"),
                     this.width / 2, this.height / 2, 0xA0A0A0);
         } else if (this.authorList != null && this.authorList.isEmpty()) {
-            graphics.drawCenteredString(this.font, Component.translatable("screen.modpack_authors.no_results"),
+            drawCenteredString(poseStack, this.font, Component.translatable("screen.modpack_authors.no_results"),
                     this.width / 2, this.height / 2, 0xA0A0A0);
         }
     }

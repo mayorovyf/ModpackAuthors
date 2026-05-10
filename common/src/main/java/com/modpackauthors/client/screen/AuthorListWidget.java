@@ -7,9 +7,11 @@ import com.modpackauthors.data.AuthorLink;
 import com.modpackauthors.data.AuthorProfile;
 import com.modpackauthors.util.TextUtil;
 import com.modpackauthors.util.UrlOpenHelper;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
@@ -97,22 +99,23 @@ public final class AuthorListWidget extends ObjectSelectionList<AuthorListWidget
         }
 
         @Override
-        public void render(GuiGraphics graphics, int index, int top, int left, int rowWidth, int rowHeight,
+        public void render(PoseStack poseStack, int index, int top, int left, int rowWidth, int rowHeight,
                            int mouseX, int mouseY, boolean hovered, float partialTick) {
             int height = rowHeight - 4;
             int background = hovered ? 0x663F4A52 : 0x55303030;
             int border = hovered ? 0xFFA0A0A0 : 0xFF606060;
 
-            graphics.fill(left, top, left + rowWidth, top + height, background);
-            graphics.fill(left, top, left + rowWidth, top + 1, border);
-            graphics.fill(left, top + height - 1, left + rowWidth, top + height, border);
-            graphics.fill(left, top, left + 1, top + height, border);
-            graphics.fill(left + rowWidth - 1, top, left + rowWidth, top + height, border);
+            GuiComponent.fill(poseStack, left, top, left + rowWidth, top + height, background);
+            GuiComponent.fill(poseStack, left, top, left + rowWidth, top + 1, border);
+            GuiComponent.fill(poseStack, left, top + height - 1, left + rowWidth, top + height, border);
+            GuiComponent.fill(poseStack, left, top, left + 1, top + height, border);
+            GuiComponent.fill(poseStack, left + rowWidth - 1, top, left + rowWidth, top + height, border);
 
             int avatarX = left + 8;
             int avatarY = top + (height - AVATAR_SIZE) / 2;
-            graphics.fill(avatarX - 1, avatarY - 1, avatarX + AVATAR_SIZE + 1, avatarY + AVATAR_SIZE + 1, 0xFF202020);
-            graphics.blit(this.author.avatarTexture(), avatarX, avatarY, 0, 0, AVATAR_SIZE, AVATAR_SIZE, AVATAR_SIZE, AVATAR_SIZE);
+            GuiComponent.fill(poseStack, avatarX - 1, avatarY - 1, avatarX + AVATAR_SIZE + 1, avatarY + AVATAR_SIZE + 1, 0xFF202020);
+            RenderSystem.setShaderTexture(0, this.author.avatarTexture());
+            GuiComponent.blit(poseStack, avatarX, avatarY, 0, 0, AVATAR_SIZE, AVATAR_SIZE, AVATAR_SIZE, AVATAR_SIZE);
 
             Font font = Minecraft.getInstance().font;
             int textX = avatarX + AVATAR_SIZE + 10;
@@ -131,20 +134,19 @@ public final class AuthorListWidget extends ObjectSelectionList<AuthorListWidget
             int textBlockHeight = (textLineCount - 1) * TEXT_LINE_HEIGHT + font.lineHeight;
             int textY = top + (height - textBlockHeight) / 2 + 2;
 
-            graphics.drawString(font, TextUtil.ellipsize(font, this.author.displayName(), textWidth), textX, textY, 0xFFFFFF, false);
+            font.draw(poseStack, TextUtil.ellipsize(font, this.author.displayName(), textWidth), textX, textY, 0xFFFFFF);
             if (!this.author.role().isBlank()) {
-                graphics.drawString(font, TextUtil.ellipsize(font, this.author.role(), textWidth), textX, textY + TEXT_LINE_HEIGHT, 0xD7D7D7, false);
+                font.draw(poseStack, TextUtil.ellipsize(font, this.author.role(), textWidth), textX, textY + TEXT_LINE_HEIGHT, 0xD7D7D7);
             }
             if (!this.author.shortDescription().isBlank()) {
                 int descriptionY = textY + (textLineCount == 3 ? TEXT_LINE_HEIGHT * 2 : TEXT_LINE_HEIGHT);
-                graphics.drawString(font, TextUtil.ellipsize(font, this.author.shortDescription(), textWidth), textX, descriptionY, 0xA8A8A8, false);
+                font.draw(poseStack, TextUtil.ellipsize(font, this.author.shortDescription(), textWidth), textX, descriptionY, 0xA8A8A8);
             }
 
             int buttonX = actionsX;
             for (IconButton button : this.actionButtons) {
-                button.setX(buttonX);
-                button.setY(actionsY);
-                button.render(graphics, mouseX, mouseY, partialTick);
+                button.setPosition(buttonX, actionsY);
+                button.render(poseStack, mouseX, mouseY, partialTick);
                 buttonX += ACTION_BUTTON_SIZE + ACTION_BUTTON_GAP;
             }
         }
