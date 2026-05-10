@@ -1,7 +1,7 @@
 plugins {
     id 'java-library'
     id 'maven-publish'
-    id 'net.neoforged.moddev.legacyforge' version '2.0.141'
+    id 'net.neoforged.moddev' version '2.0.141'
     id 'idea'
 }
 
@@ -32,25 +32,30 @@ sourceSets.main.resources {
     srcDir("${commonDir}/src/main/resources")
 }
 
-legacyForge {
-    enable {
-        neoForgeVersion = rootProject.neoforge_version
-    }
+neoForge {
+    version = rootProject.neoforge_version
 
     runs {
         client {
             client()
+            systemProperty 'neoforge.enabledGameTestNamespaces', rootProject.mod_id
         }
 
         server {
             server()
-            programArguments.addAll '--nogui'
+            programArgument '--nogui'
+            systemProperty 'neoforge.enabledGameTestNamespaces', rootProject.mod_id
+        }
+
+        configureEach {
+            systemProperty 'forge.logging.markers', 'REGISTRIES'
+            logLevel = org.slf4j.event.Level.DEBUG
         }
     }
 
     mods {
         "${rootProject.mod_id}" {
-            sourceSet sourceSets.main
+            sourceSet(sourceSets.main)
         }
     }
 }
@@ -63,8 +68,7 @@ repositories {
 def replaceProperties = [
         minecraft_version      : rootProject.minecraft_version,
         minecraft_version_range: rootProject.minecraft_version_range,
-        neoforge_version       : rootProject.neoforge_version,
-        neoforge_version_range : rootProject.neoforge_version_range,
+        neo_version            : rootProject.neoforge_version,
         loader_version_range   : rootProject.neoforge_loader_version_range,
         mod_id                 : rootProject.mod_id,
         mod_name               : rootProject.mod_name,
@@ -76,7 +80,7 @@ def replaceProperties = [
 
 tasks.named('processResources', ProcessResources).configure {
     inputs.properties replaceProperties
-    filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) {
+    filesMatching(['META-INF/neoforge.mods.toml', 'pack.mcmeta']) {
         expand replaceProperties
     }
 }
@@ -97,7 +101,6 @@ tasks.named('jar', Jar).configure {
         ])
     }
 
-    finalizedBy 'reobfJar'
 }
 
 tasks.withType(JavaCompile).configureEach {

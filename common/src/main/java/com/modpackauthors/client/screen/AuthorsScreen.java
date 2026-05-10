@@ -86,7 +86,7 @@ public final class AuthorsScreen extends Screen {
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        this.renderBackground(graphics);
+        this.renderBackground(graphics, mouseX, mouseY, partialTick);
         graphics.drawString(this.font, Component.translatable(this.catalog.titleKey()), contentLeft(), 22, 0xFFFFFF, false);
         super.render(graphics, mouseX, mouseY, partialTick);
         renderEmptyState(graphics);

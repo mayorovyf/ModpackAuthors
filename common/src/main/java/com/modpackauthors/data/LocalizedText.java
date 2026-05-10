@@ -1,7 +1,6 @@
 package com.modpackauthors.data;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.language.LanguageManager;
 
 import java.util.LinkedHashMap;
 import java.util.Locale;
@@ -9,6 +8,7 @@ import java.util.Map;
 
 public record LocalizedText(String fallback, Map<String, String> translations) {
     private static final String DEFAULT_KEY = "default";
+    private static final String DEFAULT_LANGUAGE_CODE = "en_us";
 
     public LocalizedText {
         fallback = fallback == null ? "" : fallback;
@@ -29,7 +29,7 @@ public record LocalizedText(String fallback, Map<String, String> translations) {
 
         String fallback = firstNonBlank(
                 normalized.get(DEFAULT_KEY),
-                normalized.get(LanguageManager.DEFAULT_LANGUAGE_CODE),
+                normalized.get(DEFAULT_LANGUAGE_CODE),
                 normalized.values().stream().findFirst().orElse("")
         );
         return new LocalizedText(fallback, normalized);
@@ -40,7 +40,7 @@ public record LocalizedText(String fallback, Map<String, String> translations) {
         return firstNonBlank(
                 this.translations.get(selectedLanguage),
                 this.translations.get(DEFAULT_KEY),
-                this.translations.get(LanguageManager.DEFAULT_LANGUAGE_CODE),
+                this.translations.get(DEFAULT_LANGUAGE_CODE),
                 this.fallback,
                 this.translations.values().stream().findFirst().orElse("")
         );
@@ -53,7 +53,7 @@ public record LocalizedText(String fallback, Map<String, String> translations) {
     private static String selectedLanguage() {
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft == null || minecraft.getLanguageManager() == null) {
-            return LanguageManager.DEFAULT_LANGUAGE_CODE;
+            return DEFAULT_LANGUAGE_CODE;
         }
         return normalizeLanguage(minecraft.getLanguageManager().getSelected());
     }

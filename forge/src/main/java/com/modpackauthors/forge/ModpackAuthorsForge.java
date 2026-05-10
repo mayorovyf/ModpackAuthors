@@ -14,11 +14,12 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 @Mod(ModpackAuthors.MOD_ID)
 public final class ModpackAuthorsForge {
-    public ModpackAuthorsForge(FMLJavaModLoadingContext context) {
+    @SuppressWarnings("removal")
+    public ModpackAuthorsForge() {
         ModpackAuthors.init(new ForgePlatformServices());
 
-        context.getModEventBus().addListener(this::onClientSetup);
-        context.getModEventBus().addListener(this::onRegisterClientReloadListeners);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onClientSetup);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onRegisterClientReloadListeners);
     }
 
     private void onClientSetup(FMLClientSetupEvent event) {

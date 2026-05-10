@@ -4,13 +4,13 @@ import com.modpackauthors.ModpackAuthors;
 import com.modpackauthors.client.menu.MainMenuButtonInjector;
 import com.modpackauthors.data.AuthorCatalogReloadListener;
 import net.minecraft.client.gui.screens.TitleScreen;
-import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
-import net.minecraftforge.client.event.ScreenEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
+import net.neoforged.neoforge.client.event.ScreenEvent;
+import net.neoforged.neoforge.common.NeoForge;
 
 @Mod(ModpackAuthors.MOD_ID)
 public final class ModpackAuthorsNeoForge {
@@ -22,7 +22,7 @@ public final class ModpackAuthorsNeoForge {
     }
 
     private void onClientSetup(FMLClientSetupEvent event) {
-        MinecraftForge.EVENT_BUS.addListener(EventPriority.LOWEST, this::onScreenInit);
+        NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, this::onScreenInit);
     }
 
     private void onRegisterClientReloadListeners(RegisterClientReloadListenersEvent event) {

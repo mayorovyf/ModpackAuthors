@@ -27,11 +27,9 @@ public final class AuthorListWidget extends ObjectSelectionList<AuthorListWidget
 
     public AuthorListWidget(Minecraft minecraft, int width, int height, int top, int bottom, int rowHeight,
                             Consumer<AuthorProfile> detailsAction) {
-        super(minecraft, width, height, top, bottom, rowHeight);
+        super(minecraft, width, bottom - top, top, rowHeight);
         this.owner = (AuthorsScreen) minecraft.screen;
         this.detailsAction = detailsAction;
-        this.setRenderBackground(false);
-        this.setRenderTopAndBottom(false);
     }
 
     public void setAuthors(List<AuthorProfile> authors) {
