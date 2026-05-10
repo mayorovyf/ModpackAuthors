@@ -1,9 +1,11 @@
 package com.modpackauthors.client.widget;
 
+import com.modpackauthors.util.Components;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
@@ -13,7 +15,12 @@ public final class IconButton extends Button {
     private final ResourceLocation icon;
 
     public IconButton(ResourceLocation icon, Component label, OnPress onPress) {
-        super(0, 0, 24, 24, label, onPress);
+        super(0, 0, 24, 24, Components.empty(), onPress, (button, poseStack, mouseX, mouseY) -> {
+            Screen screen = Minecraft.getInstance().screen;
+            if (screen != null) {
+                screen.renderTooltip(poseStack, label, mouseX, mouseY);
+            }
+        });
         this.icon = icon;
     }
 
