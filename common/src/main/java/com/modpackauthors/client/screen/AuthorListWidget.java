@@ -114,8 +114,12 @@ public final class AuthorListWidget extends ObjectSelectionList<AuthorListWidget
             int avatarX = left + 8;
             int avatarY = top + (height - AVATAR_SIZE) / 2;
             GuiComponent.fill(poseStack, avatarX - 1, avatarY - 1, avatarX + AVATAR_SIZE + 1, avatarY + AVATAR_SIZE + 1, 0xFF202020);
+            RenderSystem.enableBlend();
+            RenderSystem.defaultBlendFunc();
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             RenderSystem.setShaderTexture(0, this.author.avatarTexture());
             GuiComponent.blit(poseStack, avatarX, avatarY, 0, 0, AVATAR_SIZE, AVATAR_SIZE, AVATAR_SIZE, AVATAR_SIZE);
+            RenderSystem.disableBlend();
 
             Font font = Minecraft.getInstance().font;
             int textX = avatarX + AVATAR_SIZE + 10;

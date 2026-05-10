@@ -14,9 +14,10 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 @Mod(ModpackAuthors.MOD_ID)
 public final class ModpackAuthorsForge {
-    public ModpackAuthorsForge(FMLJavaModLoadingContext context) {
+    public ModpackAuthorsForge() {
         ModpackAuthors.init(new ForgePlatformServices());
 
+        FMLJavaModLoadingContext context = FMLJavaModLoadingContext.get();
         context.getModEventBus().addListener(this::onClientSetup);
         context.getModEventBus().addListener(this::onRegisterClientReloadListeners);
     }
