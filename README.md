@@ -1,6 +1,6 @@
 # Modpack Authors
 
-This is a Forge mod that adds a separate modpack authors screen to the Minecraft main menu. Players can use it to open the team list, find a specific member, and view their role, description, contacts, project contribution, and the versions they worked on.
+This is a client-side multiloader mod for Forge, Fabric, and NeoForge that adds a separate modpack authors screen to the Minecraft main menu. Players can use it to open the team list, find a specific member, and view their role, description, contacts, project contribution, and the versions they worked on.
 
 The mod does not add server logic and does not change gameplay. It works only on the client and reads author data from the pack config directory first, then falls back to bundled resources. This is useful for modpacks because the team list can be updated through JSON files without rebuilding the mod.
 
@@ -219,6 +219,42 @@ buttonHeight = 20
 ```
 
 If the button is not needed, set `showMainMenuButton = false`.
+
+## Building
+
+The shared code and resources are stored in `common/`. Loader-specific entrypoints and metadata are stored in `forge/`, `fabric/`, and `neoforge/`.
+
+Build all loader jars:
+
+```text
+./gradlew build
+```
+
+Build one loader jar:
+
+```text
+./gradlew buildForge
+./gradlew buildFabric
+./gradlew buildNeoForge
+```
+
+The loader-specific jars are written under each loader module's `build/libs/` directory.
+
+Run a loader client from Gradle or import the same tasks as IDE run configurations:
+
+```text
+./gradlew runForgeClient
+./gradlew runFabricClient
+./gradlew runNeoForgeClient
+```
+
+Server run tasks are also available for parity with the multiloader project layout:
+
+```text
+./gradlew runForgeServer
+./gradlew runFabricServer
+./gradlew runNeoForgeServer
+```
 
 ## Localization
 

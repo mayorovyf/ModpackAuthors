@@ -1,0 +1,55 @@
+tasks.register('prepareDevRunConfig') {
+    group = 'minecraft'
+    description = 'Prepares the local run config with sample Modpack Authors data.'
+    outputs.dir layout.projectDirectory.dir('run/config/modpack_authors')
+    outputs.file layout.projectDirectory.file('run/config/modpack_authors-client.toml')
+
+    doLast {
+        def authorsConfigDir = layout.projectDirectory.dir('run/config/modpack_authors').asFile
+        authorsConfigDir.mkdirs()
+
+        new File(authorsConfigDir, 'authors.json').text = '''{
+  "schemaVersion": 1,
+  "titleKey": "screen.modpack_authors.title",
+  "authors": [
+    {
+      "id": "dev_author",
+      "displayName": "Dev Author",
+      "role": "Modpack Author",
+      "shortDescription": "Example profile for local IDE runs.",
+      "longDescription": "This profile is generated only for the local run directory so the authors screen has visible content during development.",
+      "avatar": "textures/gui/authors/default.png",
+      "order": 10,
+      "tags": ["dev", "example"],
+      "badges": ["Local Test"],
+      "contacts": ["Discord: dev-author"],
+      "contributions": ["Author screen testing", "Local configuration checks"],
+      "versions": ["0.2.0"],
+      "links": [
+        {
+          "label": "Modrinth",
+          "url": "https://modrinth.com"
+        }
+      ]
+    }
+  ]
+}
+'''
+
+        layout.projectDirectory.file('run/config/modpack_authors-client.toml').asFile.text = '''[mainMenuButton]
+showMainMenuButton = true
+buttonAnchor = "BELOW_MULTIPLAYER"
+offsetX = 0
+offsetY = 0
+buttonWidth = 200
+buttonHeight = 20
+
+[screen]
+screenStyle = "DEFAULT"
+'''
+    }
+}
+
+tasks.matching { it.name in ['runClient', 'runServer'] }.configureEach {
+    dependsOn tasks.named('prepareDevRunConfig')
+}
