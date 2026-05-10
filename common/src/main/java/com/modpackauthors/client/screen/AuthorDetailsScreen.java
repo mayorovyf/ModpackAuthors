@@ -49,10 +49,19 @@ public final class AuthorDetailsScreen extends Screen {
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        this.renderBackground(graphics, mouseX, mouseY, partialTick);
+        renderDimBackground(graphics);
         renderHeader(graphics);
         renderPanel(graphics, mouseX, mouseY);
         super.render(graphics, mouseX, mouseY, partialTick);
+    }
+
+    private void renderDimBackground(GuiGraphics graphics) {
+        graphics.fillGradient(0, 0, this.width, this.height, 0xC0101010, 0xD0101010);
+    }
+
+    @Override
+    public boolean isPauseScreen() {
+        return false;
     }
 
     private void renderHeader(GuiGraphics graphics) {
