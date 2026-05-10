@@ -50,9 +50,9 @@ public final class AuthorDetailsScreen extends Screen {
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         renderDimBackground(graphics);
+        super.render(graphics, mouseX, mouseY, partialTick);
         renderHeader(graphics);
         renderPanel(graphics, mouseX, mouseY);
-        super.render(graphics, mouseX, mouseY, partialTick);
     }
 
     private void renderDimBackground(GuiGraphics graphics) {
