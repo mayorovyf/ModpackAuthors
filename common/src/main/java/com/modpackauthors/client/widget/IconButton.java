@@ -1,5 +1,6 @@
 package com.modpackauthors.client.widget;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
@@ -23,6 +24,10 @@ public final class IconButton extends Button {
 
         int iconX = this.getX() + (this.getWidth() - ICON_SIZE) / 2;
         int iconY = this.getY() + (this.getHeight() - ICON_SIZE) / 2;
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         graphics.blit(this.icon, iconX, iconY, 0, 0, ICON_SIZE, ICON_SIZE, ICON_SIZE, ICON_SIZE);
+        RenderSystem.disableBlend();
     }
 }

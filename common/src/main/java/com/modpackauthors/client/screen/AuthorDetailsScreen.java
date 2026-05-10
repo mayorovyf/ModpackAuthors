@@ -1,5 +1,6 @@
 package com.modpackauthors.client.screen;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.modpackauthors.client.icon.AuthorLinkIcon;
 import com.modpackauthors.client.icon.AuthorLinkIcons;
 import com.modpackauthors.data.AuthorLink;
@@ -9,6 +10,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 
 import java.util.ArrayList;
@@ -128,7 +130,7 @@ public final class AuthorDetailsScreen extends Screen {
         int textX = x + AVATAR_SIZE + 18;
         if (render) {
             graphics.fill(x - 1, y - 1, x + AVATAR_SIZE + 1, y + AVATAR_SIZE + 1, 0xFF202020);
-            graphics.blit(this.author.avatarTexture(), x, y, 0, 0, AVATAR_SIZE, AVATAR_SIZE, AVATAR_SIZE, AVATAR_SIZE);
+            blitTexture(graphics, this.author.avatarTexture(), x, y, AVATAR_SIZE);
             graphics.drawString(this.font, Component.literal(this.author.displayName()), textX, y + 8, 0xFFFFFF, false);
             if (!this.author.role().isBlank()) {
                 graphics.drawString(this.font, Component.literal(this.author.role()), textX, y + 24, 0xD7D7D7, false);
@@ -190,7 +192,7 @@ public final class AuthorDetailsScreen extends Screen {
                 }
                 int iconX = x + (CONTACT_ICON_SLOT - CONTACT_ICON_SIZE) / 2;
                 int iconY = rowTop + (CONTACT_ROW_HEIGHT - CONTACT_ICON_SIZE) / 2;
-                graphics.blit(icon.texture(), iconX, iconY, 0, 0, CONTACT_ICON_SIZE, CONTACT_ICON_SIZE, CONTACT_ICON_SIZE, CONTACT_ICON_SIZE);
+                blitTexture(graphics, icon.texture(), iconX, iconY, CONTACT_ICON_SIZE);
                 graphics.drawString(this.font, icon.label(), x + CONTACT_ICON_SLOT + 8, cursorY + 6, hovered ? 0xFFFFFF : 0xDADADA, false);
                 if (visible) {
                     this.linkHitboxes.add(new LinkHitbox(x - 4, rowTop, x + width, rowBottom, link));
@@ -300,6 +302,14 @@ public final class AuthorDetailsScreen extends Screen {
 
     private int panelLeft() {
         return (this.width - panelWidth()) / 2;
+    }
+
+    private static void blitTexture(GuiGraphics graphics, ResourceLocation texture, int x, int y, int size) {
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        graphics.blit(texture, x, y, 0, 0, size, size, size, size);
+        RenderSystem.disableBlend();
     }
 
     @Override

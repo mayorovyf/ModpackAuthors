@@ -1,5 +1,6 @@
 package com.modpackauthors.client.screen;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.modpackauthors.client.icon.AuthorLinkIcon;
 import com.modpackauthors.client.icon.AuthorLinkIcons;
 import com.modpackauthors.client.widget.IconButton;
@@ -14,6 +15,7 @@ import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -110,7 +112,7 @@ public final class AuthorListWidget extends ObjectSelectionList<AuthorListWidget
             int avatarX = left + 8;
             int avatarY = top + (height - AVATAR_SIZE) / 2;
             graphics.fill(avatarX - 1, avatarY - 1, avatarX + AVATAR_SIZE + 1, avatarY + AVATAR_SIZE + 1, 0xFF202020);
-            graphics.blit(this.author.avatarTexture(), avatarX, avatarY, 0, 0, AVATAR_SIZE, AVATAR_SIZE, AVATAR_SIZE, AVATAR_SIZE);
+            blitTexture(graphics, this.author.avatarTexture(), avatarX, avatarY, AVATAR_SIZE);
 
             Font font = Minecraft.getInstance().font;
             int textX = avatarX + AVATAR_SIZE + 10;
@@ -172,6 +174,14 @@ public final class AuthorListWidget extends ObjectSelectionList<AuthorListWidget
         @Override
         public Component getNarration() {
             return Component.literal(this.author.displayName());
+        }
+
+        private static void blitTexture(GuiGraphics graphics, ResourceLocation texture, int x, int y, int size) {
+            RenderSystem.enableBlend();
+            RenderSystem.defaultBlendFunc();
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+            graphics.blit(texture, x, y, 0, 0, size, size, size, size);
+            RenderSystem.disableBlend();
         }
     }
 }
