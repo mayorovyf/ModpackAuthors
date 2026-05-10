@@ -18,6 +18,6 @@
     "fabricloader": "${fabric_loader_version_range}",
     "fabric-api": "*",
     "minecraft": "${fabric_minecraft_version_range}",
-    "java": ">=17"
+    "java": ">=8"
   }
 }

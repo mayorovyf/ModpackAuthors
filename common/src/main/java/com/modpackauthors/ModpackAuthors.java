@@ -2,13 +2,13 @@ package com.modpackauthors;
 
 import com.modpackauthors.config.AuthorsClientConfig;
 import com.modpackauthors.platform.PlatformServices;
-import com.mojang.logging.LogUtils;
 import net.minecraft.resources.ResourceLocation;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public final class ModpackAuthors {
     public static final String MOD_ID = "modpack_authors";
-    public static final Logger LOGGER = LogUtils.getLogger();
+    public static final Logger LOGGER = LogManager.getLogger();
 
     private static PlatformServices platform;
 
@@ -29,10 +29,10 @@ public final class ModpackAuthors {
     }
 
     public static ResourceLocation id(String path) {
-        ResourceLocation location = ResourceLocation.tryBuild(MOD_ID, path);
-        if (location == null) {
+        try {
+            return new ResourceLocation(MOD_ID, path);
+        } catch (RuntimeException exception) {
             throw new IllegalArgumentException("Invalid mod resource path: " + path);
         }
-        return location;
     }
 }

@@ -7,6 +7,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -50,7 +51,7 @@ public final class AuthorsClientConfig {
     }
 
     private static void writeDefaultConfig(Path configPath) throws IOException {
-        List<String> lines = List.of(
+        List<String> lines = Arrays.asList(
                 "[mainMenuButton]",
                 "showMainMenuButton = true",
                 "buttonAnchor = \"BELOW_MULTIPLAYER\"",
@@ -115,14 +116,26 @@ public final class AuthorsClientConfig {
 
     private static void applyMainMenuValue(String key, String value) {
         switch (key) {
-            case "showMainMenuButton" -> showMainMenuButton = Boolean.parseBoolean(value);
-            case "buttonAnchor" -> buttonAnchor = parseEnum(ButtonAnchor.class, value, buttonAnchor);
-            case "offsetX" -> offsetX = parseInt(value, offsetX, -10000, 10000);
-            case "offsetY" -> offsetY = parseInt(value, offsetY, -10000, 10000);
-            case "buttonWidth" -> buttonWidth = parseInt(value, buttonWidth, 40, 300);
-            case "buttonHeight" -> buttonHeight = parseInt(value, buttonHeight, 16, 60);
-            default -> {
-            }
+            case "showMainMenuButton":
+                showMainMenuButton = Boolean.parseBoolean(value);
+                break;
+            case "buttonAnchor":
+                buttonAnchor = parseEnum(ButtonAnchor.class, value, buttonAnchor);
+                break;
+            case "offsetX":
+                offsetX = parseInt(value, offsetX, -10000, 10000);
+                break;
+            case "offsetY":
+                offsetY = parseInt(value, offsetY, -10000, 10000);
+                break;
+            case "buttonWidth":
+                buttonWidth = parseInt(value, buttonWidth, 40, 300);
+                break;
+            case "buttonHeight":
+                buttonHeight = parseInt(value, buttonHeight, 16, 60);
+                break;
+            default:
+                break;
         }
     }
 

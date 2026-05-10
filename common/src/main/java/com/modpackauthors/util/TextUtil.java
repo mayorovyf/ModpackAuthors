@@ -11,13 +11,13 @@ public final class TextUtil {
 
     public static Component ellipsize(Font font, String text, int width) {
         if (text == null || text.isEmpty()) {
-            return Component.empty();
+            return Components.empty();
         }
         if (font.width(text) <= width) {
-            return Component.literal(text);
+            return Components.literal(text);
         }
 
         int available = Math.max(0, width - font.width(ELLIPSIS));
-        return Component.literal(font.plainSubstrByWidth(text, available) + ELLIPSIS);
+        return Components.literal(font.plainSubstrByWidth(text, available) + ELLIPSIS);
     }
 }

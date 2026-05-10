@@ -5,6 +5,7 @@ plugins {
 }
 
 def commonDir = file('../common')
+def generatedLegacyCommonDir = file("$buildDir/generated/sources/legacyCommon/java")
 def sharedProperties = new Properties()
 file('../gradle.properties').withInputStream { sharedProperties.load(it) }
 sharedProperties.each { key, value ->
@@ -22,9 +23,75 @@ base {
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(rootProject.java_version.toInteger())
 
+def legacyCommonPackageReplacements = [
+        'com.mojang.blaze3d.vertex.PoseStack'                     : 'com.mojang.blaze3d.matrix.MatrixStack',
+        'net.minecraft.Util'                                      : 'net.minecraft.util.Util',
+        'net.minecraft.client.gui.screens.ConfirmLinkScreen'      : 'net.minecraft.client.gui.screen.ConfirmOpenLinkScreen',
+        'net.minecraft.client.gui.components.events.GuiEventListener': 'net.minecraft.client.gui.IGuiEventListener',
+        'net.minecraft.client.gui.components.ObjectSelectionList'  : 'net.minecraft.client.gui.widget.list.ExtendedList',
+        'net.minecraft.client.gui.components.AbstractWidget'       : 'net.minecraft.client.gui.widget.Widget',
+        'net.minecraft.client.gui.components.EditBox'              : 'net.minecraft.client.gui.widget.TextFieldWidget',
+        'net.minecraft.client.gui.components.Button'               : 'net.minecraft.client.gui.widget.button.Button',
+        'net.minecraft.client.gui.screens.TitleScreen'             : 'net.minecraft.client.gui.screen.MainMenuScreen',
+        'net.minecraft.client.gui.screens.Screen'                  : 'net.minecraft.client.gui.screen.Screen',
+        'net.minecraft.client.gui.GuiComponent'                    : 'net.minecraft.client.gui.AbstractGui',
+        'net.minecraft.client.gui.Font'                            : 'net.minecraft.client.gui.FontRenderer',
+        'net.minecraft.network.chat.TextComponent'                 : 'net.minecraft.util.text.StringTextComponent',
+        'net.minecraft.network.chat.TranslatableComponent'         : 'net.minecraft.util.text.TranslationTextComponent',
+        'net.minecraft.network.chat.Component'                     : 'net.minecraft.util.text.ITextComponent',
+        'net.minecraft.resources.ResourceLocation'                 : 'net.minecraft.util.ResourceLocation',
+        'net.minecraft.server.packs.resources.ResourceManager'     : 'net.minecraft.resources.IResourceManager',
+        'net.minecraft.server.packs.resources.Resource'            : 'net.minecraft.resources.IResource',
+        'net.minecraft.util.FormattedCharSequence'                 : 'net.minecraft.util.IReorderingProcessor',
+        'net.minecraft.util.Mth'                                   : 'net.minecraft.util.math.MathHelper'
+]
+
+def legacyCommonWordReplacements = [
+        'ObjectSelectionList.Entry': 'AbstractList.AbstractListEntry',
+        'ConfirmLinkScreen'      : 'ConfirmOpenLinkScreen',
+        'ObjectSelectionList'      : 'ExtendedList',
+        'GuiEventListener'         : 'IGuiEventListener',
+        'AbstractWidget'           : 'Widget',
+        'EditBox'                  : 'TextFieldWidget',
+        'TitleScreen'              : 'MainMenuScreen',
+        'GuiComponent'             : 'AbstractGui',
+        'Font'                     : 'FontRenderer',
+        'TranslatableComponent'    : 'TranslationTextComponent',
+        'TextComponent'            : 'StringTextComponent',
+        'Component'                : 'ITextComponent',
+        'ResourceLocation'         : 'ResourceLocation',
+        'ResourceManager'          : 'IResourceManager',
+        'Resource'                 : 'IResource',
+        'FormattedCharSequence'    : 'IReorderingProcessor',
+        'PoseStack'                : 'MatrixStack',
+        'Mth'                      : 'MathHelper'
+]
+
+legacyCommonWordReplacements['OnPress'] = 'Button.IPressable'
+
+tasks.register('generateLegacyCommonSources', Copy) {
+    outputs.upToDateWhen { false }
+    from("${commonDir}/src/main/java") {
+        exclude 'com/modpackauthors/data/AuthorCatalogReloadListener.java'
+    }
+    into generatedLegacyCommonDir
+    filter { String line ->
+        legacyCommonPackageReplacements.each { from, to ->
+            line = line.replace(from, to)
+        }
+        legacyCommonWordReplacements.each { from, to ->
+            line = line.replaceAll("\\b${java.util.regex.Pattern.quote(from)}\\b", to)
+        }
+        if (line == 'import net.minecraft.client.gui.widget.list.ExtendedList;') {
+            line = 'import net.minecraft.client.gui.widget.list.AbstractList;\n' + line
+        }
+        line
+    }
+}
+
 sourceSets.main.java.srcDirs = [
         'src/main/java',
-        "${commonDir}/src/main/java"
+        generatedLegacyCommonDir
 ]
 
 sourceSets.main.resources {
@@ -60,6 +127,7 @@ minecraft {
 }
 
 repositories {
+    maven { url = 'https://libraries.minecraft.net/' }
     mavenCentral()
     maven { url = 'https://maven.minecraftforge.net/' }
 }
@@ -109,8 +177,15 @@ tasks.named('jar', Jar).configure {
 }
 
 tasks.withType(JavaCompile).configureEach {
+    dependsOn tasks.named('generateLegacyCommonSources')
     options.encoding = 'UTF-8'
-    options.release = rootProject.java_version.toInteger()
+    def targetJava = rootProject.java_version.toInteger()
+    if (targetJava >= 9) {
+        options.release = targetJava
+    } else {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
 }
 
 apply from: '../gradle/dev-run-config.gradle'

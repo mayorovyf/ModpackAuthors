@@ -2,11 +2,14 @@ package com.modpackauthors.client.icon;
 
 import com.modpackauthors.ModpackAuthors;
 import com.modpackauthors.data.AuthorLink;
+import com.modpackauthors.util.Components;
+import com.modpackauthors.util.JavaCompat;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -14,7 +17,7 @@ public final class AuthorLinkIcons {
     public static final ResourceLocation DETAILS = icon("details");
 
     private static final ResourceLocation DEFAULT_LINK = icon("link");
-    private static final List<KnownSite> KNOWN_SITES = List.of(
+    private static final List<KnownSite> KNOWN_SITES = JavaCompat.immutableList(Arrays.asList(
             new KnownSite("github", "GitHub", "github.com"),
             new KnownSite("gitlab", "GitLab", "gitlab.com"),
             new KnownSite("modrinth", "Modrinth", "modrinth.com"),
@@ -34,7 +37,7 @@ public final class AuthorLinkIcons {
             new KnownSite("boosty", "Boosty", "boosty.to"),
             new KnownSite("kofi", "Ko-fi", "ko-fi.com"),
             new KnownSite("donationalerts", "DonationAlerts", "donationalerts.com")
-    );
+    ));
 
     private AuthorLinkIcons() {
     }
@@ -43,17 +46,17 @@ public final class AuthorLinkIcons {
         String host = host(link.url());
         for (KnownSite site : KNOWN_SITES) {
             if (site.matches(host)) {
-                return new AuthorLinkIcon(icon(site.iconName()), label(link, Component.literal(site.displayName())));
+                return new AuthorLinkIcon(icon(site.iconName()), label(link, Components.literal(site.displayName())));
             }
         }
 
-        return new AuthorLinkIcon(DEFAULT_LINK, label(link, host.isBlank()
-                ? Component.translatable("screen.modpack_authors.open_link")
-                : Component.literal(host)));
+        return new AuthorLinkIcon(DEFAULT_LINK, label(link, JavaCompat.isBlank(host)
+                ? Components.translatable("screen.modpack_authors.open_link")
+                : Components.literal(host)));
     }
 
     private static Component label(AuthorLink link, Component fallback) {
-        return link.label().isBlank() ? fallback : Component.literal(link.label());
+        return JavaCompat.isBlank(link.label()) ? fallback : Components.literal(link.label());
     }
 
     private static String host(String url) {
@@ -69,9 +72,23 @@ public final class AuthorLinkIcons {
         return ModpackAuthors.id("textures/gui/icons/" + name + ".png");
     }
 
-    private record KnownSite(String iconName, String displayName, List<String> domains) {
+    private static final class KnownSite {
+        private final String iconName;
+        private final String displayName;
+        private final List<String> domains;
+
         private KnownSite(String iconName, String displayName, String... domains) {
-            this(iconName, displayName, List.of(domains));
+            this.iconName = iconName;
+            this.displayName = displayName;
+            this.domains = JavaCompat.immutableList(domains);
+        }
+
+        private String iconName() {
+            return this.iconName;
+        }
+
+        private String displayName() {
+            return this.displayName;
         }
 
         private boolean matches(String host) {

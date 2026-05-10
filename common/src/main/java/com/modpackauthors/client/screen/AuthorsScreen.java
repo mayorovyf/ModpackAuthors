@@ -4,12 +4,12 @@ import com.modpackauthors.data.AuthorCatalog;
 import com.modpackauthors.data.AuthorCatalogLoader;
 import com.modpackauthors.data.AuthorProfile;
 import com.modpackauthors.search.AuthorSearch;
+import com.modpackauthors.util.Components;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 
 import java.util.List;
@@ -26,7 +26,7 @@ public final class AuthorsScreen extends Screen {
     private String query = "";
 
     public AuthorsScreen(Screen parentScreen) {
-        super(Component.translatable("screen.modpack_authors.title"));
+        super(Components.translatable("screen.modpack_authors.title"));
         this.parentScreen = parentScreen;
     }
 
@@ -43,21 +43,19 @@ public final class AuthorsScreen extends Screen {
         int backX = contentRight - backWidth;
         int searchX = Math.max(contentLeft, backX - 8 - searchWidth);
 
-        this.searchBox = new EditBox(this.font, searchX, controlY, searchWidth, 20, Component.translatable("screen.modpack_authors.search"));
+        this.searchBox = new EditBox(this.font, searchX, controlY, searchWidth, 20, Components.translatable("screen.modpack_authors.search"));
         this.searchBox.setMaxLength(128);
         this.searchBox.setValue(this.query);
         this.searchBox.setResponder(this::onSearchChanged);
-        this.searchBox.setHint(Component.translatable("screen.modpack_authors.search"));
-        this.addRenderableWidget(this.searchBox);
+        this.addButton(this.searchBox);
 
-        this.addRenderableWidget(Button.builder(Component.translatable("screen.modpack_authors.back"), button -> onClose())
-                .bounds(backX, controlY, backWidth, 20)
-                .build());
+        this.addButton(new Button(backX, controlY, backWidth, 20,
+                Components.translatable("screen.modpack_authors.back"), button -> onClose()));
 
         int listTop = HEADER_HEIGHT;
         int listBottom = this.height - SIDE_MARGIN;
         this.authorList = new AuthorListWidget(this.minecraft, this.width, this.height, listTop, listBottom, 60, this::openDetails);
-        this.addRenderableWidget(this.authorList);
+        this.children.add(this.authorList);
         applyFilter(false);
     }
 
@@ -85,19 +83,22 @@ public final class AuthorsScreen extends Screen {
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        this.renderBackground(graphics);
-        graphics.drawString(this.font, Component.translatable(this.catalog.titleKey()), contentLeft(), 22, 0xFFFFFF, false);
-        super.render(graphics, mouseX, mouseY, partialTick);
-        renderEmptyState(graphics);
+    public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTick) {
+        this.renderBackground(poseStack);
+        this.font.draw(poseStack, Components.translatable(this.catalog.titleKey()), contentLeft(), 22, 0xFFFFFF);
+        if (this.authorList != null) {
+            this.authorList.render(poseStack, mouseX, mouseY, partialTick);
+        }
+        super.render(poseStack, mouseX, mouseY, partialTick);
+        renderEmptyState(poseStack);
     }
 
-    private void renderEmptyState(GuiGraphics graphics) {
+    private void renderEmptyState(PoseStack poseStack) {
         if (this.catalog.authors().isEmpty()) {
-            graphics.drawCenteredString(this.font, Component.translatable("screen.modpack_authors.no_authors"),
+            drawCenteredString(poseStack, this.font, Components.translatable("screen.modpack_authors.no_authors"),
                     this.width / 2, this.height / 2, 0xA0A0A0);
         } else if (this.authorList != null && this.authorList.isEmpty()) {
-            graphics.drawCenteredString(this.font, Component.translatable("screen.modpack_authors.no_results"),
+            drawCenteredString(poseStack, this.font, Components.translatable("screen.modpack_authors.no_results"),
                     this.width / 2, this.height / 2, 0xA0A0A0);
         }
     }

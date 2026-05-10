@@ -100,7 +100,13 @@ tasks.named('jar', Jar).configure {
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
-    options.release = rootProject.java_version.toInteger()
+    def targetJava = rootProject.java_version.toInteger()
+    if (targetJava >= 9) {
+        options.release = targetJava
+    } else {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
 }
 
 apply from: '../gradle/dev-run-config.gradle'

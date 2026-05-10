@@ -16,7 +16,8 @@ public final class ModpackAuthorsFabric implements ClientModInitializer {
 
         ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(new FabricAuthorCatalogReloadListener());
         ScreenEvents.AFTER_INIT.register((client, screen, scaledWidth, scaledHeight) -> {
-            if (screen instanceof TitleScreen titleScreen) {
+            if (screen instanceof TitleScreen) {
+                TitleScreen titleScreen = (TitleScreen) screen;
                 MainMenuButtonInjector.inject(titleScreen, Screens.getButtons(screen), button -> Screens.getButtons(screen).add(button));
             }
         });

@@ -1,8 +1,19 @@
 package com.modpackauthors.data;
 
-public record AuthorLink(String label, String url) {
-    public AuthorLink {
-        label = label == null ? "" : label;
-        url = url == null ? "" : url;
+public final class AuthorLink {
+    private final String label;
+    private final String url;
+
+    public AuthorLink(String label, String url) {
+        this.label = label == null ? "" : label;
+        this.url = url == null ? "" : url;
+    }
+
+    public String label() {
+        return this.label;
+    }
+
+    public String url() {
+        return this.url;
     }
 }

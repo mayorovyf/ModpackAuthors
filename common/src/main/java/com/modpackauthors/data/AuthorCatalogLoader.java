@@ -7,6 +7,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.modpackauthors.ModpackAuthors;
+import com.modpackauthors.util.JavaCompat;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -32,6 +33,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
+import java.util.Collections;
 
 public final class AuthorCatalogLoader {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
@@ -79,13 +81,8 @@ public final class AuthorCatalogLoader {
     }
 
     private static AuthorCatalog loadResourceCatalog(ResourceManager resourceManager) {
-        Optional<Resource> resource = resourceManager.getResource(CATALOG_LOCATION);
-        if (resource.isEmpty()) {
-            ModpackAuthors.LOGGER.warn("Author catalog {} is missing; using empty catalog", CATALOG_LOCATION);
-            return AuthorCatalog.empty();
-        }
-
-        try (Reader reader = new InputStreamReader(resource.get().open(), StandardCharsets.UTF_8)) {
+        try (Resource resource = resourceManager.getResource(CATALOG_LOCATION);
+             Reader reader = new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8)) {
             JsonElement root = GSON.fromJson(reader, JsonElement.class);
             return parseCatalog(resourceManager, root, CATALOG_LOCATION.toString());
         } catch (IOException | JsonParseException exception) {
@@ -143,18 +140,20 @@ public final class AuthorCatalogLoader {
 
     private static List<Path> getAuthorFiles(Path directory) {
         if (!Files.isDirectory(directory)) {
-            return List.of();
+            return Collections.emptyList();
         }
 
         try (Stream<Path> paths = Files.list(directory)) {
-            return paths
+            List<Path> files = new ArrayList<Path>();
+            paths
                     .filter(Files::isRegularFile)
                     .filter(path -> path.getFileName().toString().toLowerCase(Locale.ROOT).endsWith(".json"))
                     .sorted(Comparator.comparing(path -> path.getFileName().toString(), String.CASE_INSENSITIVE_ORDER))
-                    .toList();
+                    .forEach(files::add);
+            return JavaCompat.immutableList(files);
         } catch (IOException exception) {
             ModpackAuthors.LOGGER.error("Failed to list author config directory {}; using fallback catalog", directory, exception);
-            return List.of();
+            return Collections.emptyList();
         }
     }
 
@@ -163,15 +162,15 @@ public final class AuthorCatalogLoader {
             return;
         }
 
-        Optional<Resource> resource = resourceManager.getResource(CATALOG_LOCATION);
-        if (resource.isEmpty()) {
+        if (!resourceManager.hasResource(CATALOG_LOCATION)) {
             return;
         }
 
         try {
             Files.createDirectories(catalogPath.getParent());
             JsonElement root;
-            try (Reader reader = new InputStreamReader(resource.get().open(), StandardCharsets.UTF_8)) {
+            try (Resource resource = resourceManager.getResource(CATALOG_LOCATION);
+                 Reader reader = new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8)) {
                 root = GSON.fromJson(reader, JsonElement.class);
             }
 
@@ -235,7 +234,7 @@ public final class AuthorCatalogLoader {
             ModpackAuthors.LOGGER.warn("Skipping author entry {}: id is required", source);
             return Optional.empty();
         }
-        if (displayName.fallback().isBlank()) {
+        if (JavaCompat.isBlank(displayName.fallback())) {
             ModpackAuthors.LOGGER.warn("Skipping author {}: displayName is required", id);
             return Optional.empty();
         }
@@ -265,20 +264,20 @@ public final class AuthorCatalogLoader {
     }
 
     private static ResourceLocation resolveAvatar(ResourceManager resourceManager, String rawAvatar) {
-        if (rawAvatar == null || rawAvatar.isBlank()) {
+        if (JavaCompat.isBlank(rawAvatar)) {
             return FALLBACK_AVATAR;
         }
 
         ResourceLocation location = rawAvatar.contains(":")
                 ? ResourceLocation.tryParse(rawAvatar)
-                : ResourceLocation.tryBuild(ModpackAuthors.MOD_ID, rawAvatar);
+                : buildModResource(rawAvatar);
 
         if (location == null) {
             ModpackAuthors.LOGGER.warn("Avatar path {} is invalid; using fallback {}", rawAvatar, FALLBACK_AVATAR);
             return FALLBACK_AVATAR;
         }
 
-        if (resourceManager.getResource(location).isPresent()) {
+        if (resourceManager.hasResource(location)) {
             return location;
         }
 
@@ -286,10 +285,18 @@ public final class AuthorCatalogLoader {
         return FALLBACK_AVATAR;
     }
 
+    private static ResourceLocation buildModResource(String path) {
+        try {
+            return new ResourceLocation(ModpackAuthors.MOD_ID, path);
+        } catch (RuntimeException exception) {
+            return null;
+        }
+    }
+
     private static List<AuthorLink> getLinks(JsonObject object, String authorId) {
         JsonArray linksArray = getArray(object, "links");
         if (linksArray == null) {
-            return List.of();
+            return Collections.emptyList();
         }
 
         List<AuthorLink> links = new ArrayList<>();
@@ -315,7 +322,7 @@ public final class AuthorCatalogLoader {
     }
 
     private static boolean isAllowedUrl(String url) {
-        if (url.isBlank()) {
+        if (JavaCompat.isBlank(url)) {
             return false;
         }
 
@@ -364,7 +371,7 @@ public final class AuthorCatalogLoader {
     private static List<String> getStringList(JsonObject object, String key) {
         JsonArray array = getArray(object, key);
         if (array == null) {
-            return List.of();
+            return Collections.emptyList();
         }
 
         List<String> values = new ArrayList<>();
@@ -422,13 +429,13 @@ public final class AuthorCatalogLoader {
     private static List<LocalizedText> getLocalizedTextList(JsonObject object, String key) {
         JsonArray array = getArray(object, key);
         if (array == null) {
-            return List.of();
+            return Collections.emptyList();
         }
 
         List<LocalizedText> values = new ArrayList<>();
         for (JsonElement element : array) {
             LocalizedText value = parseLocalizedText(element, LocalizedText.of(""));
-            if (!value.fallback().isBlank()) {
+            if (!JavaCompat.isBlank(value.fallback())) {
                 values.add(value);
             }
         }

@@ -1,7 +1,9 @@
 package com.modpackauthors.search;
 
 import com.modpackauthors.data.AuthorProfile;
+import com.modpackauthors.util.JavaCompat;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
@@ -13,12 +15,16 @@ public final class AuthorSearch {
     public static List<AuthorProfile> filter(Collection<AuthorProfile> authors, String query) {
         String normalizedQuery = normalize(query);
         if (normalizedQuery.isEmpty()) {
-            return List.copyOf(authors);
+            return JavaCompat.immutableList(authors);
         }
 
-        return authors.stream()
-                .filter(author -> matches(author, normalizedQuery))
-                .toList();
+        List<AuthorProfile> result = new ArrayList<AuthorProfile>();
+        for (AuthorProfile author : authors) {
+            if (matches(author, normalizedQuery)) {
+                result.add(author);
+            }
+        }
+        return JavaCompat.immutableList(result);
     }
 
     public static boolean matches(AuthorProfile author, String normalizedQuery) {
