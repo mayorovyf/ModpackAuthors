@@ -8,6 +8,7 @@ import com.modpackauthors.util.Components;
 import com.modpackauthors.util.UrlOpenHelper;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
@@ -74,7 +75,12 @@ public final class AuthorDetailsScreen extends Screen {
         drawBorder(poseStack, panelLeft, PANEL_TOP, panelWidth, panelHeight);
 
         this.linkHitboxes.clear();
-        layoutContent(poseStack, panelLeft, PANEL_TOP, panelWidth, true, mouseX, mouseY);
+        enableScissor(panelLeft + 2, PANEL_TOP + 2, panelLeft + panelWidth - 2, panelBottom - 2);
+        try {
+            layoutContent(poseStack, panelLeft, PANEL_TOP, panelWidth, true, mouseX, mouseY);
+        } finally {
+            RenderSystem.disableScissor();
+        }
 
         renderScrollHint(poseStack, panelLeft, PANEL_TOP, panelWidth, panelHeight);
     }
@@ -185,7 +191,8 @@ public final class AuthorDetailsScreen extends Screen {
                 blitTexture(poseStack, icon.texture(), iconX, iconY, CONTACT_ICON_SIZE);
                 this.font.draw(poseStack, icon.label(), x + CONTACT_ICON_SLOT + 8, cursorY + 6, hovered ? 0xFFFFFF : 0xDADADA);
                 if (visible) {
-                    this.linkHitboxes.add(new LinkHitbox(x - 4, rowTop, x + width, rowBottom, link));
+                    this.linkHitboxes.add(new LinkHitbox(x - 4, Math.max(rowTop, PANEL_TOP + 2),
+                            x + width, Math.min(rowBottom, this.height - 28), link));
                 }
             }
 
@@ -258,6 +265,16 @@ public final class AuthorDetailsScreen extends Screen {
     private static void blitTexture(PoseStack poseStack, ResourceLocation texture, int x, int y, int size) {
         RenderSystem.setShaderTexture(0, texture);
         GuiComponent.blit(poseStack, x, y, 0, 0, size, size, size, size);
+    }
+
+    private static void enableScissor(int left, int top, int right, int bottom) {
+        Minecraft minecraft = Minecraft.getInstance();
+        double scale = minecraft.getWindow().getGuiScale();
+        int scissorX = (int) Math.floor(left * scale);
+        int scissorY = (int) Math.floor((minecraft.getWindow().getGuiScaledHeight() - bottom) * scale);
+        int scissorWidth = (int) Math.ceil((right - left) * scale);
+        int scissorHeight = (int) Math.ceil((bottom - top) * scale);
+        RenderSystem.enableScissor(scissorX, scissorY, scissorWidth, scissorHeight);
     }
 
     @Override
