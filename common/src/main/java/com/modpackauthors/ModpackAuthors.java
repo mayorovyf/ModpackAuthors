@@ -29,10 +29,10 @@ public final class ModpackAuthors {
     }
 
     public static ResourceLocation id(String path) {
-        ResourceLocation location = ResourceLocation.tryBuild(MOD_ID, path);
-        if (location == null) {
+        try {
+            return new ResourceLocation(MOD_ID, path);
+        } catch (RuntimeException exception) {
             throw new IllegalArgumentException("Invalid mod resource path: " + path);
         }
-        return location;
     }
 }

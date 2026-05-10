@@ -55,7 +55,7 @@ public record LocalizedText(String fallback, Map<String, String> translations) {
         if (minecraft == null || minecraft.getLanguageManager() == null) {
             return LanguageManager.DEFAULT_LANGUAGE_CODE;
         }
-        return normalizeLanguage(minecraft.getLanguageManager().getSelected());
+        return normalizeLanguage(minecraft.options.languageCode);
     }
 
     private static String normalizeLanguage(String language) {

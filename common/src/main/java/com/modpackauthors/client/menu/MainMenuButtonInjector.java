@@ -2,12 +2,12 @@ package com.modpackauthors.client.menu;
 
 import com.modpackauthors.client.screen.AuthorsScreen;
 import com.modpackauthors.config.AuthorsClientConfig;
+import com.modpackauthors.util.Components;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.TitleScreen;
-import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 
 import java.util.Collection;
@@ -34,10 +34,9 @@ public final class MainMenuButtonInjector {
             shiftWidgetsAtOrBelow(listeners, placement.y(), placement.height() + 4);
         }
 
-        Button button = Button.builder(Component.translatable("screen.modpack_authors.menu_button"), pressed ->
-                        Minecraft.getInstance().setScreen(new AuthorsScreen(titleScreen)))
-                .bounds(placement.x(), placement.y(), placement.width(), placement.height())
-                .build();
+        Button button = new Button(placement.x(), placement.y(), placement.width(), placement.height(),
+                Components.translatable("screen.modpack_authors.menu_button"),
+                pressed -> Minecraft.getInstance().setScreen(new AuthorsScreen(titleScreen)));
 
         addButton.accept(button);
     }
@@ -62,14 +61,14 @@ public final class MainMenuButtonInjector {
                 .filter(AbstractWidget.class::isInstance)
                 .map(AbstractWidget.class::cast)
                 .filter(widget -> widget.getWidth() >= VANILLA_BUTTON_WIDTH)
-                .sorted(Comparator.comparingInt(AbstractWidget::getY))
+                .sorted(Comparator.comparingInt(widget -> widget.y))
                 .toList();
 
         if (fullWidthButtons.size() >= 2) {
             AbstractWidget multiplayerButton = fullWidthButtons.get(1);
             return new ButtonPlacement(
-                    multiplayerButton.getX(),
-                    multiplayerButton.getY() + VANILLA_BUTTON_SPACING,
+                    multiplayerButton.x,
+                    multiplayerButton.y + VANILLA_BUTTON_SPACING,
                     multiplayerButton.getWidth(),
                     multiplayerButton.getHeight()
             );
@@ -108,8 +107,8 @@ public final class MainMenuButtonInjector {
 
     private static void shiftWidgetsAtOrBelow(Collection<? extends GuiEventListener> listeners, int minY, int amount) {
         for (GuiEventListener listener : listeners) {
-            if (listener instanceof AbstractWidget widget && widget.getY() >= minY) {
-                widget.setY(widget.getY() + amount);
+            if (listener instanceof AbstractWidget widget && widget.y >= minY) {
+                widget.y += amount;
             }
         }
     }

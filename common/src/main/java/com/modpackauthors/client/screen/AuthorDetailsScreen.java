@@ -4,11 +4,15 @@ import com.modpackauthors.client.icon.AuthorLinkIcon;
 import com.modpackauthors.client.icon.AuthorLinkIcons;
 import com.modpackauthors.data.AuthorLink;
 import com.modpackauthors.data.AuthorProfile;
+import com.modpackauthors.util.Components;
 import com.modpackauthors.util.UrlOpenHelper;
-import net.minecraft.client.gui.GuiGraphics;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 
 import java.util.ArrayList;
@@ -32,7 +36,7 @@ public final class AuthorDetailsScreen extends Screen {
     private double scrollAmount;
 
     public AuthorDetailsScreen(Screen parentScreen, AuthorProfile author) {
-        super(Component.literal(author.displayName()));
+        super(Components.literal(author.displayName()));
         this.parentScreen = parentScreen;
         this.author = author;
     }
@@ -40,110 +44,107 @@ public final class AuthorDetailsScreen extends Screen {
     @Override
     protected void init() {
         int panelRight = panelLeft() + panelWidth();
-        this.addRenderableWidget(Button.builder(Component.translatable("screen.modpack_authors.back"), button -> onClose())
-                .bounds(panelRight - 74, 18, 74, 20)
-                .build());
+        this.addRenderableWidget(new Button(panelRight - 74, 18, 74, 20,
+                Components.translatable("screen.modpack_authors.back"), button -> onClose()));
 
         this.scrollAmount = Mth.clamp(this.scrollAmount, 0.0D, maxScroll());
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        this.renderBackground(graphics);
-        renderHeader(graphics);
-        renderPanel(graphics, mouseX, mouseY);
-        super.render(graphics, mouseX, mouseY, partialTick);
+    public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTick) {
+        this.renderBackground(poseStack);
+        renderHeader(poseStack);
+        renderPanel(poseStack, mouseX, mouseY);
+        super.render(poseStack, mouseX, mouseY, partialTick);
     }
 
-    private void renderHeader(GuiGraphics graphics) {
-        graphics.drawString(this.font,
-                Component.literal(Component.translatable("screen.modpack_authors.title").getString() + " > " + this.author.displayName()),
-                panelLeft(), 28, 0xFFFFFF, false);
+    private void renderHeader(PoseStack poseStack) {
+        this.font.draw(poseStack,
+                Components.literal(Components.translatable("screen.modpack_authors.title").getString() + " > " + this.author.displayName()),
+                panelLeft(), 28, 0xFFFFFF);
     }
 
-    private void renderPanel(GuiGraphics graphics, int mouseX, int mouseY) {
+    private void renderPanel(PoseStack poseStack, int mouseX, int mouseY) {
         int panelLeft = panelLeft();
         int panelWidth = panelWidth();
         int panelBottom = this.height - 26;
         int panelHeight = panelBottom - PANEL_TOP;
 
-        graphics.fill(panelLeft, PANEL_TOP, panelLeft + panelWidth, panelBottom, 0x66303030);
-        drawBorder(graphics, panelLeft, PANEL_TOP, panelWidth, panelHeight);
+        GuiComponent.fill(poseStack, panelLeft, PANEL_TOP, panelLeft + panelWidth, panelBottom, 0x66303030);
+        drawBorder(poseStack, panelLeft, PANEL_TOP, panelWidth, panelHeight);
 
         this.linkHitboxes.clear();
-        graphics.enableScissor(panelLeft + 2, PANEL_TOP + 2, panelLeft + panelWidth - 2, panelBottom - 2);
-        layoutContent(graphics, panelLeft, PANEL_TOP, panelWidth, true, mouseX, mouseY);
-        graphics.disableScissor();
+        layoutContent(poseStack, panelLeft, PANEL_TOP, panelWidth, true, mouseX, mouseY);
 
-        renderScrollHint(graphics, panelLeft, PANEL_TOP, panelWidth, panelHeight);
+        renderScrollHint(poseStack, panelLeft, PANEL_TOP, panelWidth, panelHeight);
     }
 
-    private int layoutContent(GuiGraphics graphics, int panelLeft, int panelTop, int panelWidth, boolean render, int mouseX, int mouseY) {
+    private int layoutContent(PoseStack poseStack, int panelLeft, int panelTop, int panelWidth, boolean render, int mouseX, int mouseY) {
         int contentX = panelLeft + CONTENT_PADDING;
         int contentWidth = panelWidth - CONTENT_PADDING * 2;
         int cursorY = panelTop + CONTENT_PADDING - (render ? (int) this.scrollAmount : 0);
 
-        cursorY = renderSummary(graphics, contentX, cursorY, contentWidth, render);
-        cursorY = separator(graphics, contentX, cursorY + SECTION_GAP, contentWidth, render);
+        cursorY = renderSummary(poseStack, contentX, cursorY, contentWidth, render);
+        cursorY = separator(poseStack, contentX, cursorY + SECTION_GAP, contentWidth, render);
 
-        cursorY = renderAbout(graphics, contentX, cursorY, contentWidth, render);
+        cursorY = renderAbout(poseStack, contentX, cursorY, contentWidth, render);
 
         List<String> roles = this.author.badges().isEmpty() ? this.author.tags() : this.author.badges();
         if (!roles.isEmpty()) {
-            cursorY = separator(graphics, contentX, cursorY + SECTION_GAP, contentWidth, render);
-            cursorY = renderChipSection(graphics, Component.translatable("screen.modpack_authors.project_roles"), roles,
+            cursorY = separator(poseStack, contentX, cursorY + SECTION_GAP, contentWidth, render);
+            cursorY = renderChipSection(poseStack, Components.translatable("screen.modpack_authors.project_roles"), roles,
                     contentX, cursorY, contentWidth, render);
         }
 
         if (!this.author.links().isEmpty() || !this.author.contacts().isEmpty()) {
-            cursorY = separator(graphics, contentX, cursorY + SECTION_GAP, contentWidth, render);
-            cursorY = renderContacts(graphics, contentX, cursorY, contentWidth, render, mouseX, mouseY);
+            cursorY = separator(poseStack, contentX, cursorY + SECTION_GAP, contentWidth, render);
+            cursorY = renderContacts(poseStack, contentX, cursorY, contentWidth, render, mouseX, mouseY);
         }
 
         if (!this.author.contributions().isEmpty()) {
-            cursorY = separator(graphics, contentX, cursorY + SECTION_GAP, contentWidth, render);
-            cursorY = renderBulletSection(graphics, Component.translatable("screen.modpack_authors.contributions"),
+            cursorY = separator(poseStack, contentX, cursorY + SECTION_GAP, contentWidth, render);
+            cursorY = renderBulletSection(poseStack, Components.translatable("screen.modpack_authors.contributions"),
                     this.author.contributions(), contentX, cursorY, contentWidth, render);
         }
 
         if (!this.author.versions().isEmpty()) {
-            cursorY = separator(graphics, contentX, cursorY + SECTION_GAP, contentWidth, render);
-            cursorY = renderBulletSection(graphics, Component.translatable("screen.modpack_authors.versions"),
+            cursorY = separator(poseStack, contentX, cursorY + SECTION_GAP, contentWidth, render);
+            cursorY = renderBulletSection(poseStack, Components.translatable("screen.modpack_authors.versions"),
                     this.author.versions(), contentX, cursorY, contentWidth, render);
         }
 
         return cursorY + CONTENT_PADDING;
     }
 
-    private int renderSummary(GuiGraphics graphics, int x, int y, int width, boolean render) {
+    private int renderSummary(PoseStack poseStack, int x, int y, int width, boolean render) {
         int textX = x + AVATAR_SIZE + 18;
         if (render) {
-            graphics.fill(x - 1, y - 1, x + AVATAR_SIZE + 1, y + AVATAR_SIZE + 1, 0xFF202020);
-            graphics.blit(this.author.avatarTexture(), x, y, 0, 0, AVATAR_SIZE, AVATAR_SIZE, AVATAR_SIZE, AVATAR_SIZE);
-            graphics.drawString(this.font, Component.literal(this.author.displayName()), textX, y + 8, 0xFFFFFF, false);
+            GuiComponent.fill(poseStack, x - 1, y - 1, x + AVATAR_SIZE + 1, y + AVATAR_SIZE + 1, 0xFF202020);
+            blitTexture(poseStack, this.author.avatarTexture(), x, y, AVATAR_SIZE);
+            this.font.draw(poseStack, Components.literal(this.author.displayName()), textX, y + 8, 0xFFFFFF);
             if (!this.author.role().isBlank()) {
-                graphics.drawString(this.font, Component.literal(this.author.role()), textX, y + 24, 0xD7D7D7, false);
+                this.font.draw(poseStack, Components.literal(this.author.role()), textX, y + 24, 0xD7D7D7);
             }
             if (!this.author.shortDescription().isBlank()) {
-                graphics.drawString(this.font, Component.literal(this.author.shortDescription()), textX, y + 46, 0xC9C9C9, false);
+                this.font.draw(poseStack, Components.literal(this.author.shortDescription()), textX, y + 46, 0xC9C9C9);
             }
         }
         return y + AVATAR_SIZE;
     }
 
-    private int renderAbout(GuiGraphics graphics, int x, int y, int width, boolean render) {
-        int cursorY = renderSectionTitle(graphics, Component.translatable("screen.modpack_authors.about_author"), x, y, render);
+    private int renderAbout(PoseStack poseStack, int x, int y, int width, boolean render) {
+        int cursorY = renderSectionTitle(poseStack, Components.translatable("screen.modpack_authors.about_author"), x, y, render);
         String description = this.author.longDescription().isBlank()
                 ? this.author.shortDescription()
                 : this.author.longDescription();
         if (!description.isBlank()) {
-            cursorY = renderWrappedText(graphics, description, x, cursorY, width, 0xDADADA, render);
+            cursorY = renderWrappedText(poseStack, description, x, cursorY, width, 0xDADADA, render);
         }
         return cursorY;
     }
 
-    private int renderChipSection(GuiGraphics graphics, Component title, List<String> chips, int x, int y, int width, boolean render) {
-        int cursorY = renderSectionTitle(graphics, title, x, y, render);
+    private int renderChipSection(PoseStack poseStack, Component title, List<String> chips, int x, int y, int width, boolean render) {
+        int cursorY = renderSectionTitle(poseStack, title, x, y, render);
         int chipX = x;
         int chipY = cursorY;
         int chipHeight = 18;
@@ -156,9 +157,9 @@ public final class AuthorDetailsScreen extends Screen {
             }
 
             if (render) {
-                graphics.fill(chipX, chipY, chipX + chipWidth, chipY + chipHeight, 0x88404040);
-                drawBorder(graphics, chipX, chipY, chipWidth, chipHeight);
-                graphics.drawString(this.font, Component.literal(chip), chipX + 7, chipY + 5, 0xDADADA, false);
+                GuiComponent.fill(poseStack, chipX, chipY, chipX + chipWidth, chipY + chipHeight, 0x88404040);
+                drawBorder(poseStack, chipX, chipY, chipWidth, chipHeight);
+                this.font.draw(poseStack, Components.literal(chip), chipX + 7, chipY + 5, 0xDADADA);
             }
             chipX += chipWidth + 6;
         }
@@ -166,8 +167,8 @@ public final class AuthorDetailsScreen extends Screen {
         return chipY + chipHeight;
     }
 
-    private int renderContacts(GuiGraphics graphics, int x, int y, int width, boolean render, int mouseX, int mouseY) {
-        int cursorY = renderSectionTitle(graphics, Component.translatable("screen.modpack_authors.contacts"), x, y, render);
+    private int renderContacts(PoseStack poseStack, int x, int y, int width, boolean render, int mouseX, int mouseY) {
+        int cursorY = renderSectionTitle(poseStack, Components.translatable("screen.modpack_authors.contacts"), x, y, render);
         for (AuthorLink link : this.author.links()) {
             AuthorLinkIcon icon = AuthorLinkIcons.iconFor(link);
             int rowTop = cursorY - 2;
@@ -177,12 +178,12 @@ public final class AuthorDetailsScreen extends Screen {
 
             if (render) {
                 if (hovered) {
-                    graphics.fill(x - 4, rowTop, x + width, rowBottom, 0x553F4A52);
+                    GuiComponent.fill(poseStack, x - 4, rowTop, x + width, rowBottom, 0x553F4A52);
                 }
                 int iconX = x + (CONTACT_ICON_SLOT - CONTACT_ICON_SIZE) / 2;
                 int iconY = rowTop + (CONTACT_ROW_HEIGHT - CONTACT_ICON_SIZE) / 2;
-                graphics.blit(icon.texture(), iconX, iconY, 0, 0, CONTACT_ICON_SIZE, CONTACT_ICON_SIZE, CONTACT_ICON_SIZE, CONTACT_ICON_SIZE);
-                graphics.drawString(this.font, icon.label(), x + CONTACT_ICON_SLOT + 8, cursorY + 6, hovered ? 0xFFFFFF : 0xDADADA, false);
+                blitTexture(poseStack, icon.texture(), iconX, iconY, CONTACT_ICON_SIZE);
+                this.font.draw(poseStack, icon.label(), x + CONTACT_ICON_SLOT + 8, cursorY + 6, hovered ? 0xFFFFFF : 0xDADADA);
                 if (visible) {
                     this.linkHitboxes.add(new LinkHitbox(x - 4, rowTop, x + width, rowBottom, link));
                 }
@@ -191,54 +192,54 @@ public final class AuthorDetailsScreen extends Screen {
             cursorY += CONTACT_ROW_HEIGHT;
         }
         for (String contact : this.author.contacts()) {
-            cursorY = renderWrappedText(graphics, "- " + contact, x, cursorY + 2, width, 0xC9C9C9, render);
+            cursorY = renderWrappedText(poseStack, "- " + contact, x, cursorY + 2, width, 0xC9C9C9, render);
             cursorY += 2;
         }
         return cursorY;
     }
 
-    private int renderBulletSection(GuiGraphics graphics, Component title, List<String> values, int x, int y, int width, boolean render) {
-        int cursorY = renderSectionTitle(graphics, title, x, y, render);
+    private int renderBulletSection(PoseStack poseStack, Component title, List<String> values, int x, int y, int width, boolean render) {
+        int cursorY = renderSectionTitle(poseStack, title, x, y, render);
         for (String value : values) {
-            cursorY = renderWrappedText(graphics, "- " + value, x, cursorY, width, 0xC9C9C9, render);
+            cursorY = renderWrappedText(poseStack, "- " + value, x, cursorY, width, 0xC9C9C9, render);
             cursorY += 2;
         }
         return cursorY;
     }
 
-    private int renderSectionTitle(GuiGraphics graphics, Component title, int x, int y, boolean render) {
+    private int renderSectionTitle(PoseStack poseStack, Component title, int x, int y, boolean render) {
         if (render) {
-            graphics.drawString(this.font, title, x, y, 0xFFFFFF, false);
+            this.font.draw(poseStack, title, x, y, 0xFFFFFF);
         }
         return y + 18;
     }
 
-    private int renderWrappedText(GuiGraphics graphics, String text, int x, int y, int width, int color, boolean render) {
+    private int renderWrappedText(PoseStack poseStack, String text, int x, int y, int width, int color, boolean render) {
         int cursorY = y;
-        for (var line : this.font.split(Component.literal(text), width)) {
+        for (var line : this.font.split(Components.literal(text), width)) {
             if (render) {
-                graphics.drawString(this.font, line, x, cursorY, color, false);
+                this.font.draw(poseStack, line, x, cursorY, color);
             }
             cursorY += TEXT_LINE_HEIGHT;
         }
         return cursorY;
     }
 
-    private int separator(GuiGraphics graphics, int x, int y, int width, boolean render) {
+    private int separator(PoseStack poseStack, int x, int y, int width, boolean render) {
         if (render) {
-            graphics.fill(x, y, x + width, y + 1, 0xFF606060);
+            GuiComponent.fill(poseStack, x, y, x + width, y + 1, 0xFF606060);
         }
         return y + SECTION_GAP;
     }
 
-    private void drawBorder(GuiGraphics graphics, int x, int y, int width, int height) {
-        graphics.fill(x, y, x + width, y + 1, 0xFF707070);
-        graphics.fill(x, y + height - 1, x + width, y + height, 0xFF707070);
-        graphics.fill(x, y, x + 1, y + height, 0xFF707070);
-        graphics.fill(x + width - 1, y, x + width, y + height, 0xFF707070);
+    private void drawBorder(PoseStack poseStack, int x, int y, int width, int height) {
+        GuiComponent.fill(poseStack, x, y, x + width, y + 1, 0xFF707070);
+        GuiComponent.fill(poseStack, x, y + height - 1, x + width, y + height, 0xFF707070);
+        GuiComponent.fill(poseStack, x, y, x + 1, y + height, 0xFF707070);
+        GuiComponent.fill(poseStack, x + width - 1, y, x + width, y + height, 0xFF707070);
     }
 
-    private void renderScrollHint(GuiGraphics graphics, int panelLeft, int panelTop, int panelWidth, int panelHeight) {
+    private void renderScrollHint(PoseStack poseStack, int panelLeft, int panelTop, int panelWidth, int panelHeight) {
         double maxScroll = maxScroll();
         if (maxScroll <= 0.0D) {
             return;
@@ -250,8 +251,13 @@ public final class AuthorDetailsScreen extends Screen {
         int thumbHeight = Math.max(20, (int) (trackHeight * (trackHeight / (double) (trackHeight + maxScroll))));
         int thumbY = trackTop + (int) ((trackHeight - thumbHeight) * (this.scrollAmount / maxScroll));
 
-        graphics.fill(trackX, trackTop, trackX + 3, trackTop + trackHeight, 0x77303030);
-        graphics.fill(trackX, thumbY, trackX + 3, thumbY + thumbHeight, 0xFFB0B0B0);
+        GuiComponent.fill(poseStack, trackX, trackTop, trackX + 3, trackTop + trackHeight, 0x77303030);
+        GuiComponent.fill(poseStack, trackX, thumbY, trackX + 3, thumbY + thumbHeight, 0xFFB0B0B0);
+    }
+
+    private static void blitTexture(PoseStack poseStack, ResourceLocation texture, int x, int y, int size) {
+        RenderSystem.setShaderTexture(0, texture);
+        GuiComponent.blit(poseStack, x, y, 0, 0, size, size, size, size);
     }
 
     @Override

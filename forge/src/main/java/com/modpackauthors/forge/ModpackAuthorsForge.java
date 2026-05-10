@@ -29,7 +29,7 @@ public final class ModpackAuthorsForge {
         event.registerReloadListener(new AuthorCatalogReloadListener());
     }
 
-    private void onScreenInit(ScreenEvent.Init.Post event) {
+    private void onScreenInit(ScreenEvent.InitScreenEvent.Post event) {
         if (event.getScreen() instanceof TitleScreen titleScreen) {
             MainMenuButtonInjector.inject(titleScreen, event.getListenersList(), event::addListener);
         }

@@ -79,13 +79,8 @@ public final class AuthorCatalogLoader {
     }
 
     private static AuthorCatalog loadResourceCatalog(ResourceManager resourceManager) {
-        Optional<Resource> resource = resourceManager.getResource(CATALOG_LOCATION);
-        if (resource.isEmpty()) {
-            ModpackAuthors.LOGGER.warn("Author catalog {} is missing; using empty catalog", CATALOG_LOCATION);
-            return AuthorCatalog.empty();
-        }
-
-        try (Reader reader = new InputStreamReader(resource.get().open(), StandardCharsets.UTF_8)) {
+        try (Resource resource = resourceManager.getResource(CATALOG_LOCATION);
+             Reader reader = new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8)) {
             JsonElement root = GSON.fromJson(reader, JsonElement.class);
             return parseCatalog(resourceManager, root, CATALOG_LOCATION.toString());
         } catch (IOException | JsonParseException exception) {
@@ -163,15 +158,15 @@ public final class AuthorCatalogLoader {
             return;
         }
 
-        Optional<Resource> resource = resourceManager.getResource(CATALOG_LOCATION);
-        if (resource.isEmpty()) {
+        if (!resourceManager.hasResource(CATALOG_LOCATION)) {
             return;
         }
 
         try {
             Files.createDirectories(catalogPath.getParent());
             JsonElement root;
-            try (Reader reader = new InputStreamReader(resource.get().open(), StandardCharsets.UTF_8)) {
+            try (Resource resource = resourceManager.getResource(CATALOG_LOCATION);
+                 Reader reader = new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8)) {
                 root = GSON.fromJson(reader, JsonElement.class);
             }
 
@@ -271,19 +266,27 @@ public final class AuthorCatalogLoader {
 
         ResourceLocation location = rawAvatar.contains(":")
                 ? ResourceLocation.tryParse(rawAvatar)
-                : ResourceLocation.tryBuild(ModpackAuthors.MOD_ID, rawAvatar);
+                : buildModResource(rawAvatar);
 
         if (location == null) {
             ModpackAuthors.LOGGER.warn("Avatar path {} is invalid; using fallback {}", rawAvatar, FALLBACK_AVATAR);
             return FALLBACK_AVATAR;
         }
 
-        if (resourceManager.getResource(location).isPresent()) {
+        if (resourceManager.hasResource(location)) {
             return location;
         }
 
         ModpackAuthors.LOGGER.warn("Avatar {} is missing; using fallback {}", location, FALLBACK_AVATAR);
         return FALLBACK_AVATAR;
+    }
+
+    private static ResourceLocation buildModResource(String path) {
+        try {
+            return new ResourceLocation(ModpackAuthors.MOD_ID, path);
+        } catch (RuntimeException exception) {
+            return null;
+        }
     }
 
     private static List<AuthorLink> getLinks(JsonObject object, String authorId) {

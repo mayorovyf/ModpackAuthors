@@ -2,6 +2,7 @@ package com.modpackauthors.client.icon;
 
 import com.modpackauthors.ModpackAuthors;
 import com.modpackauthors.data.AuthorLink;
+import com.modpackauthors.util.Components;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
@@ -43,17 +44,17 @@ public final class AuthorLinkIcons {
         String host = host(link.url());
         for (KnownSite site : KNOWN_SITES) {
             if (site.matches(host)) {
-                return new AuthorLinkIcon(icon(site.iconName()), label(link, Component.literal(site.displayName())));
+                return new AuthorLinkIcon(icon(site.iconName()), label(link, Components.literal(site.displayName())));
             }
         }
 
         return new AuthorLinkIcon(DEFAULT_LINK, label(link, host.isBlank()
-                ? Component.translatable("screen.modpack_authors.open_link")
-                : Component.literal(host)));
+                ? Components.translatable("screen.modpack_authors.open_link")
+                : Components.literal(host)));
     }
 
     private static Component label(AuthorLink link, Component fallback) {
-        return link.label().isBlank() ? fallback : Component.literal(link.label());
+        return link.label().isBlank() ? fallback : Components.literal(link.label());
     }
 
     private static String host(String url) {
