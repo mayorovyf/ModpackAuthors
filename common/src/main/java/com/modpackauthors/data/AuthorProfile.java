@@ -8,6 +8,7 @@ public record AuthorProfile(
         String id,
         LocalizedText displayNameText,
         LocalizedText roleText,
+        LocalizedText listRoleText,
         LocalizedText shortDescriptionText,
         LocalizedText longDescriptionText,
         ResourceLocation avatarTexture,
@@ -23,6 +24,7 @@ public record AuthorProfile(
         id = id == null ? "" : id;
         displayNameText = displayNameText == null ? LocalizedText.of("") : displayNameText;
         roleText = roleText == null ? LocalizedText.of("") : roleText;
+        listRoleText = listRoleText == null ? roleText : listRoleText;
         shortDescriptionText = shortDescriptionText == null ? LocalizedText.of("") : shortDescriptionText;
         longDescriptionText = longDescriptionText == null ? LocalizedText.of("") : longDescriptionText;
         tagTexts = List.copyOf(tagTexts == null ? List.of() : tagTexts);
@@ -39,6 +41,11 @@ public record AuthorProfile(
 
     public String role() {
         return this.roleText.resolve();
+    }
+
+    public String listRole() {
+        String resolved = this.listRoleText.resolve();
+        return resolved.isBlank() ? this.role() : resolved;
     }
 
     public String shortDescription() {

@@ -24,6 +24,7 @@ public final class AuthorSearch {
     public static boolean matches(AuthorProfile author, String normalizedQuery) {
         return contains(author.displayName(), normalizedQuery)
                 || contains(author.role(), normalizedQuery)
+                || contains(author.listRole(), normalizedQuery)
                 || contains(author.shortDescription(), normalizedQuery)
                 || contains(author.longDescription(), normalizedQuery)
                 || author.tags().stream().anyMatch(value -> contains(value, normalizedQuery))

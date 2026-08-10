@@ -121,8 +121,9 @@ public final class AuthorListWidget extends ObjectSelectionList<AuthorListWidget
             int actionsX = left + rowWidth - actionsWidth - 8;
             int actionsY = top + (height - ACTION_BUTTON_SIZE) / 2;
             int textWidth = Math.max(40, actionsX - textX - 10);
+            String listRole = this.author.listRole();
             int textLineCount = 1;
-            if (!this.author.role().isBlank()) {
+            if (!listRole.isBlank()) {
                 textLineCount++;
             }
             if (!this.author.shortDescription().isBlank()) {
@@ -132,8 +133,8 @@ public final class AuthorListWidget extends ObjectSelectionList<AuthorListWidget
             int textY = top + (height - textBlockHeight) / 2 + 2;
 
             graphics.drawString(font, TextUtil.ellipsize(font, this.author.displayName(), textWidth), textX, textY, 0xFFFFFF, false);
-            if (!this.author.role().isBlank()) {
-                graphics.drawString(font, TextUtil.ellipsize(font, this.author.role(), textWidth), textX, textY + TEXT_LINE_HEIGHT, 0xD7D7D7, false);
+            if (!listRole.isBlank()) {
+                graphics.drawString(font, TextUtil.ellipsize(font, listRole, textWidth), textX, textY + TEXT_LINE_HEIGHT, 0xD7D7D7, false);
             }
             if (!this.author.shortDescription().isBlank()) {
                 int descriptionY = textY + (textLineCount == 3 ? TEXT_LINE_HEIGHT * 2 : TEXT_LINE_HEIGHT);

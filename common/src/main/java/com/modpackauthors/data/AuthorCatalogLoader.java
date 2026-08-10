@@ -246,11 +246,13 @@ public final class AuthorCatalogLoader {
 
         LocalizedText shortDescription = getLocalizedText(object, "shortDescription", LocalizedText.of(""));
         LocalizedText longDescription = getLocalizedText(object, "longDescription", shortDescription);
+        LocalizedText role = getLocalizedText(object, "role", LocalizedText.of(""));
 
         return Optional.of(new AuthorProfile(
                 id,
                 displayName,
-                getLocalizedText(object, "role", LocalizedText.of("")),
+                role,
+                getLocalizedText(object, "listRole", role),
                 shortDescription,
                 longDescription,
                 resolveAvatar(resourceManager, getString(object, "avatar", "")),
